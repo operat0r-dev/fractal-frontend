@@ -1,21 +1,30 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { JWTTokenResponse } from '../interfaces/types'
 
 export const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    username: "",
-    password: ""
+    user: {},
+    tokenData: {
+      access_token: "",
+      expires_in: 0,
+      token_type: ""
+    }
   },
   reducers: {
-    setUsername: (state, action: PayloadAction<string>) => {
-      state.username = action.payload
+    setTokenData: (state, action: PayloadAction<JWTTokenResponse>) => {
+      state.tokenData = action.payload
     },
-    setPassword: (state, action: PayloadAction<string>) => {
-      state.password = action.payload
-    },
+    loadTokenFromStorage: (state) => {
+      const stringifiedData = localStorage.getItem('token_data');
+      if (stringifiedData) {
+        const jsonData: JWTTokenResponse = JSON.parse(stringifiedData);
+        state.tokenData = jsonData;
+      }
+    }
   },
 })
 
-export const { setUsername, setPassword } = authSlice.actions
+export const { setTokenData, loadTokenFromStorage } = authSlice.actions
 
 export default authSlice.reducer

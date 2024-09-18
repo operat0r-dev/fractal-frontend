@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -7,13 +7,10 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { z } from "zod"
-import { useAppDispatch, useAppSelector } from "@/hooks"
-import { setPassword, setUsername } from "./slices/auth"
 import { useAuthApi } from "./api"
 
 const formSchema = z.object({
@@ -22,38 +19,42 @@ const formSchema = z.object({
   })
 
 export default function Login() {
-  const dispatch = useAppDispatch();
-  const authData = useAppSelector((state) => state.authData);
-  const { login } = useAuthApi();
+  const navigate = useNavigate();
+  const { login } = useAuthApi();  
+
+  const form = useForm<z.infer<typeof formSchema>>({
+      resolver: zodResolver(formSchema),
+      defaultValues: {
+        email: "",
+        password: ""
+      }
+  })
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const response = await login(values);
-
-    console.log(values)
-    dispatch(setUsername(response.data.username));
-    dispatch(setPassword(response.data.password));
+    try {
+      await login(values);
+      
+      navigate("/dashboard");
+    } catch {
+      form.setError("email", {
+        'type': 'validate',
+        'message': 'Email jest zajęty'
+      })
+    }
   }
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-          email: "",
-          password: ""
-        }
-    })
-
-    return (
-      <div className="flex flex-col items-center max-w-[400px] space-y-4">
+  return (
+    <div className="auth-container">
+      <div className="flex flex-col items-center w-[400px] mx-auto px-10 py-8 shadow-xl border rounded-md">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-4">
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="text" {...field} />
+                    <Input type="text" {...field} placeholder="E-mail address"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -64,18 +65,22 @@ export default function Login() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input type="password" {...field} placeholder="Password"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
-            />  
+            />
             <Button variant="default" type="submit" className="w-full">Login</Button>
           </form>
         </Form>
-        <span>Don't have an account? <NavLink className="font-medium hover:underline" to={'/register'}>Register here.</NavLink></span>
+        <div className="my-4">
+          <NavLink className="font-medium hover:underline" to={'/forgot'}>Forgot password? </NavLink>
+          &#x2022;
+          <NavLink className="font-medium hover:underline" to={'/register'}> Create an account.</NavLink>
+        </div>
       </div>
-    )
+    </div>
+  )
 }

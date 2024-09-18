@@ -96,8 +96,23 @@
   * {
     @apply border-border;
   }
+  
+  #root, html, body {
+    height: 100%;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .auth-container {
+    min-height: calc(100% - 100px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 50px 0px;
   }
 }

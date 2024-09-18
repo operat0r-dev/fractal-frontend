@@ -1,11 +1,18 @@
-import { Outlet } from "react-router-dom"
+import { Outlet } from "react-router-dom";
+import { useAppDispatch } from "./hooks";
 import { useEffect } from "react";
-import apiClient from "./apiClient";
+import { loadTokenFromStorage } from "./modules/auth/slices/auth";
 
 function App() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(loadTokenFromStorage());
+  })
+
   return (
-    <>
-      <Outlet />
+    <>  
+      <Outlet />      
     </>
   )
 }

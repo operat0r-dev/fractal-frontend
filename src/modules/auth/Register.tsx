@@ -6,13 +6,10 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { z } from "zod"
-import { useAppDispatch, useAppSelector } from "@/hooks"
-import { setPassword, setUsername } from "./slices/auth"
 import { useAuthApi } from "./api"
 import { NavLink } from "react-router-dom"
 
@@ -24,40 +21,43 @@ const formSchema = z.object({
   })
 
 export default function Register() {
-  const dispatch = useAppDispatch();
-  const authData = useAppSelector((state) => state.authData);
   const { register } = useAuthApi();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const response = await register(values);
-
-    console.log(values)
-    dispatch(setUsername(response.data.username));
-    dispatch(setPassword(response.data.password));
+    try {
+      await register(values);
+      
+    } catch {
+      form.setError("email", {
+        'type': 'validate',
+        'message': 'Email jest zajęty'
+      })
+    }
+    
   }
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-          name: "",
-          email: "",
-          password: "",
-          password_confirmation: ""
-        }
-    })
+  const form = useForm<z.infer<typeof formSchema>>({
+      resolver: zodResolver(formSchema),
+      defaultValues: {
+        name: "",
+        email: "",
+        password: "",
+        password_confirmation: ""
+      }
+  })
 
-    return (
-      <div className="flex flex-col items-center max-w-[400px] space-y-4">
+  return (
+    <div className="auth-container">
+      <div className="flex flex-col items-center w-[400px] mx-auto px-10 py-8 shadow-xl border rounded-md">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-4">
           <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input type="text" {...field} />
+                    <Input type="text" {...field} placeholder="Username" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -68,9 +68,8 @@ export default function Register() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>E-mail</FormLabel>
                   <FormControl>
-                    <Input type="text" {...field} />
+                    <Input type="text" {...field} placeholder="E-mail address" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -81,9 +80,8 @@ export default function Register() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input type="password" {...field} placeholder="Password"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -94,9 +92,8 @@ export default function Register() {
               name="password_confirmation"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password confirmation</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input type="password" {...field} placeholder="Password confirmation" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -107,5 +104,6 @@ export default function Register() {
         </Form>
         <NavLink to={'/login'} className="font-medium hover:underline">Back to login</NavLink>
       </div>
-    )
+    </div>
+  )
 }
