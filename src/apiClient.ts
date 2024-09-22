@@ -1,26 +1,34 @@
-import axios from "axios"
-import { store } from "./store";
+import axios from 'axios';
+import { store } from './store';
 
 export const apiClient = axios.create({
-    baseURL: `${ import.meta.env.VITE_API_URL }/api`,
-    headers: {
-      "Content-Type": "application/json"
-    }
+  baseURL: `${import.meta.env.VITE_API_URL}/api`,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-apiClient.interceptors.request.use((config) => {
-  if (store.getState().authData.tokenData.access_token) {
-    config.headers["Authorization"] = `Bearer ${store.getState().authData.tokenData.access_token}`;
+apiClient.interceptors.request.use(
+  (config) => {
+    const { tokenData } = store.getState().authData;
+
+    if (tokenData) {
+      config.headers['Authorization'] = `Bearer ${tokenData.access_token}`;
     }
     return config;
-  }, (error) => {
+  },
+  (error) => {
     return Promise.reject(error);
-  });
+  }
+);
 
-apiClient.interceptors.response.use(function (response) {
+apiClient.interceptors.response.use(
+  function (response) {
     return response;
-  }, function (error) {
+  },
+  function (error) {
     return Promise.reject(error);
-  });
+  }
+);
 
 export default apiClient;

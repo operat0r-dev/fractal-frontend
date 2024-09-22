@@ -1,30 +1,41 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { JWTTokenResponse } from '../interfaces/types'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { JWTTokenResponse, User } from '../interfaces/types';
+import {
+  setLocalStorageItem,
+  removeLocalStorageItem,
+} from '@/modules/core/helpers/LocalStorage';
+
+type AuthState = {
+  tokenData: JWTTokenResponse | null;
+  user: User | null;
+};
+
+const initialState: AuthState = {
+  tokenData: null,
+  user: null,
+};
 
 export const authSlice = createSlice({
   name: 'auth',
-  initialState: {
-    user: {},
-    tokenData: {
-      access_token: "",
-      expires_in: 0,
-      token_type: ""
-    }
-  },
+  initialState,
   reducers: {
     setTokenData: (state, action: PayloadAction<JWTTokenResponse>) => {
-      state.tokenData = action.payload
+      setLocalStorageItem('token_data', action.payload);
+      state.tokenData = action.payload;
     },
-    loadTokenFromStorage: (state) => {
-      const stringifiedData = localStorage.getItem('token_data');
-      if (stringifiedData) {
-        const jsonData: JWTTokenResponse = JSON.parse(stringifiedData);
-        state.tokenData = jsonData;
-      }
-    }
+    setUser: (state, action: PayloadAction<User>) => {
+      setLocalStorageItem('user', action.payload);
+      state.user = action.payload;
+    },
+    logout: (state) => {
+      removeLocalStorageItem('token_data');
+      removeLocalStorageItem('user');
+      state.tokenData = null;
+      state.user = null;
+    },
   },
-})
+});
 
-export const { setTokenData, loadTokenFromStorage } = authSlice.actions
+export const { setTokenData, setUser, logout } = authSlice.actions;
 
-export default authSlice.reducer
+export default authSlice.reducer;

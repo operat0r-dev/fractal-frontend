@@ -1,54 +1,69 @@
-import apiClient from "@/apiClient";
-import { RegisterRequest, LoginRequest, JWTTokenResponse } from "./interfaces/types";
-import { AxiosResponse } from "axios";
-import { ApiResponse } from "@/types";
-import { useAppDispatch } from "@/hooks";
-import { setTokenData } from "./slices/auth";
+import apiClient from '@/apiClient';
+import {
+  RegisterRequest,
+  LoginRequest,
+  JWTTokenResponse,
+  User,
+} from './interfaces/types';
+import { AxiosResponse } from 'axios';
+import { ApiResponse } from '@/types';
+import { useAppDispatch } from '@/hooks';
+import { setTokenData, setUser } from './slices/auth';
 
 export function useAuthApi() {
-    const dispatch = useAppDispatch();
-    const login = async (payload: LoginRequest) => {
-        const response: AxiosResponse<ApiResponse<JWTTokenResponse>> = await apiClient.post('/login', payload);
-        const apiResponse: ApiResponse<JWTTokenResponse> = response.data;
-        
-        if (!apiResponse.success) {
-            if (!apiResponse.message) {
-                throw new Error("wiadomosc z frontu");
-            }
+  const dispatch = useAppDispatch();
+  const login = async (payload: LoginRequest) => {
+    const response: AxiosResponse<ApiResponse<JWTTokenResponse>> =
+      await apiClient.post('/login', payload);
+    const apiResponse: ApiResponse<JWTTokenResponse> = response.data;
 
-            throw new Error("wiadomosc z backu");
-        }
-        
-        return handleJWTTokenResponse(apiResponse.data);
+    if (!apiResponse.success) {
+      if (!apiResponse.message) {
+        throw new Error('wiadomosc z frontu');
+      }
+
+      throw new Error('wiadomosc z backu');
     }
 
-    const handleJWTTokenResponse = (payload: JWTTokenResponse) => {
-        dispatch(setTokenData(payload));
-        window.localStorage.setItem('token_data', JSON.stringify(payload));
+    dispatch(setTokenData(apiResponse.data));
+    await getUser();
+  };
+
+  const register = async (values: RegisterRequest) => {
+    const formData = new FormData();
+
+    formData.append('name', values.name);
+    formData.append('email', values.email);
+    formData.append('password', values.password);
+    formData.append('password_confirmation', values.password_confirmation);
+
+    const response = await apiClient.post('/register', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response;
+  };
+
+  const getUser = async () => {
+    const response: AxiosResponse<ApiResponse<User>> =
+      await apiClient.get('/me');
+    const apiResponse: ApiResponse<User> = response.data;
+
+    if (!apiResponse.success) {
+      if (!apiResponse.message) {
+        throw new Error('wiadomosc z frontu');
+      }
+
+      throw new Error('wiadomosc z backu');
     }
 
-    const register = async (values: RegisterRequest) => {
-        const formData = new FormData();
-        
-        formData.append("name", values.name);
-        formData.append("email", values.email);
-        formData.append("password", values.password);
-        formData.append("password_confirmation", values.password_confirmation);
+    dispatch(setUser(apiResponse.data));
+  };
 
-        const response = await apiClient.post('/register',
-            formData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            }
-        );
-        
-        return response
-    }
-
-    return {
-        login,
-        register
-    }
+  return {
+    login,
+    register,
+  };
 }
