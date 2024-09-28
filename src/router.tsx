@@ -1,12 +1,13 @@
 import App from './App.tsx';
 import Login from '@/modules/auth/Login';
 import Register from '@/modules/auth/Register';
-import Dashboard from '@/modules/dashboard/components/DroppableColumn.tsx';
+// import Dashboard from '@/modules/board/components/DroppableColumn.tsx';
 import AppLayout from './modules/core/AppLayout.tsx';
 import { createBrowserRouter } from 'react-router-dom';
 import ProtectedRoutes from './utils/ProtectedRoutes.tsx';
 import Settings from './modules/settings/components/Settings.tsx';
-import React from 'react';
+import Workspace from './modules/workspaces';
+import Board from './modules/board';
 
 export const router = createBrowserRouter([
   {
@@ -20,12 +21,16 @@ export const router = createBrowserRouter([
             element: <ProtectedRoutes />,
             children: [
               {
-                path: '/dashboard',
-                element: <Dashboard />,
+                path: '/board/:id',
+                element: <Board />,
               },
               {
                 path: '/settings',
                 element: <Settings />,
+              },
+              {
+                path: '/workspace/:id',
+                element: <Workspace />,
               },
             ],
           },

@@ -23,4 +23,8 @@ export type User = {
   email: string;
   created_at: string;
   updated_at: string;
+  workspaces: {
+    id: number;
+    name: string;
+  }[];
 };

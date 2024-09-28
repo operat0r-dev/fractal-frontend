@@ -7,19 +7,73 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { useAppDispatch } from '@/hooks';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { logout } from '@/modules/auth/slices/auth';
 import { useNavigate } from 'react-router-dom';
 import { User } from '@/modules/auth/interfaces/types';
 import { ExternalLink, Users } from 'lucide-react';
+import { useWorkspacesApi } from '@/modules/workspaces/api/WorkspacesApi';
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useState } from 'react';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useToast } from '@/hooks/use-toast';
+import { setWorkspaces } from '@/modules/workspaces/slices/workspaces';
+import { Form, FormField, FormItem, FormControl } from '@/components/ui/form';
 
 type AccountProps = {
   user: User | null;
 };
 
+const formSchema = z.object({
+  name: z.string(),
+});
+
 const Account = (props: AccountProps) => {
-  const dispatch = useAppDispatch();
+  const [open, setOpen] = useState(false);
+  const { workspaces } = useAppSelector((state) => state.workspaces);
+  const { createWorkspace } = useWorkspacesApi();
+  const { toast } = useToast();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const response = await createWorkspace(values);
+      dispatch(setWorkspaces([response, ...workspaces]));
+
+      setOpen(false);
+
+      toast({
+        description: 'Workspace created successfully',
+        variant: 'success',
+      });
+    } catch (error) {
+      toast({
+        description: 'An error occured during workspace creation.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -59,14 +113,58 @@ const Account = (props: AccountProps) => {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="gap-4"
-          onClick={() => {
-            navigate('/add-workspace');
-          }}>
+          onClick={() => setOpen(true)}>
           <Users className="h-4 w-4" />
           Create workspace
         </DropdownMenuItem>
         <DropdownMenuSeparator />
       </DropdownMenuContent>
+
+      <Dialog
+        open={open}
+        onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Create workspace</DialogTitle>
+            <DialogDescription>
+              Here you can create your brand new workspace.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label
+                          htmlFor="name"
+                          className="text-right">
+                          Workspace name
+                        </Label>
+                        <Input
+                          id="name"
+                          className="col-span-3"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+          <DialogFooter>
+            <Button
+              type="submit"
+              onClick={form.handleSubmit(onSubmit)}>
+              Submit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DropdownMenu>
   );
 };
