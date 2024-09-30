@@ -42,12 +42,9 @@ export default function Login() {
     try {
       await login(values);
 
-      navigate('/dashboard');
+      navigate('/settings');
     } catch (error) {
-      form.setError('email', {
-        type: 'validate',
-        message: 'Email jest zajęty',
-      });
+      form.setError('password', { message: 'Invalid email or password' });
     }
   };
 
@@ -70,7 +67,6 @@ export default function Login() {
                       placeholder="E-mail address"
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />

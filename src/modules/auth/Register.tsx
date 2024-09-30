@@ -7,31 +7,44 @@ import {
   FormField,
   FormItem,
   FormMessage,
+  FormDescription
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { z } from 'zod';
 import { useAuthApi } from './api';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
-const formSchema = z.object({
-  name: z.string(),
-  email: z.string().email({ message: 'Nieprawidłowy format adresu e-mail' }),
-  password: z.string().min(8, { message: 'Hasło ma za mało znaków' }),
-  password_confirmation: z
-    .string()
-    .min(8, { message: 'Podane hasła różnią się' }),
-});
+const formSchema = z
+  .object({
+    name: z.string(),
+    email: z.string().email({ message: 'Invalid e-mail address format' }),
+    password: z.string().min(8, { message: 'Password has too few characters' }),
+    password_confirmation: z.string(),
+  })
+  .superRefine(({ password, password_confirmation }, ctx) => {
+    if (password_confirmation !== password) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Password confirmation differs from password',
+        path: ['password_confirmation'],
+      });
+    }
+  });
 
 export default function Register() {
-  const { register } = useAuthApi();
+  const { register, login } = useAuthApi();
+  const navigate = useNavigate();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await register(values);
+      await login({ email: values.email, password: values.password });
+
+      navigate('/settings');
     } catch {
       form.setError('email', {
         type: 'validate',
-        message: 'Email jest zajęty',
+        message: 'E-mail address already exists',
       });
     }
   };
@@ -52,15 +65,18 @@ export default function Register() {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="w-full space-y-4"
-          >
+            className="w-full space-y-4">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input type="text" {...field} placeholder="Username" />
+                    <Input
+                      type="text"
+                      {...field}
+                      placeholder="Username"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -88,8 +104,13 @@ export default function Register() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input type="password" {...field} placeholder="Password" />
+                    <Input
+                      type="password"
+                      {...field}
+                      placeholder="Password"
+                    />
                   </FormControl>
+                  <FormDescription>Min 8 characters</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -110,12 +131,16 @@ export default function Register() {
                 </FormItem>
               )}
             />
-            <Button className="w-full" variant="default">
+            <Button
+              className="w-full"
+              variant="default">
               Register
             </Button>
           </form>
         </Form>
-        <NavLink to={'/login'} className="font-medium hover:underline">
+        <NavLink
+          to={'/login'}
+          className="font-medium hover:underline">
           Back to login
         </NavLink>
       </div>

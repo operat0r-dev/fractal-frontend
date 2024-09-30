@@ -80,7 +80,7 @@ const WorkspaceSelector = () => {
             </DropdownMenuItem>
           </>
         )}
-        {otherWorkspaces.length && (
+        {otherWorkspaces.length > 0 && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Your workspaces</DropdownMenuLabel>
