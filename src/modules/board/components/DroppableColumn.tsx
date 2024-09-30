@@ -26,11 +26,14 @@ import { Input } from '@/components/ui/input';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import apiClient from '@/apiClient';
+import useBoardApi from '../api';
+import { SequenceIncrementor } from '../constants/SequenceConstants';
+import type { Task } from '../types/types';
 
 type props = {
   seq: number;
   column: Column;
+  onTaskCreate: (payload: Task) => void;
 };
 
 const formSchema = z.object({
@@ -38,7 +41,13 @@ const formSchema = z.object({
   title: z.string(),
 });
 
+const columnNameFormSchema = z.object({
+  name: z.string(),
+});
+
 const DroppableColumn = (props: props) => {
+  const { storeTask, updateColumn } = useBoardApi();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,17 +56,61 @@ const DroppableColumn = (props: props) => {
     },
   });
 
+  const columnNameForm = useForm<z.infer<typeof columnNameFormSchema>>({
+    resolver: zodResolver(columnNameFormSchema),
+    defaultValues: {
+      name: props.column.name,
+    },
+  });
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const response = await apiClient.post('/task/store', {
+    const response = await storeTask({
       ...values,
-      seq: props.column.tasks.length + 1,
+      seq: props.column.tasks.length
+        ? props.column.tasks[props.column.tasks.length - 1].seq +
+          SequenceIncrementor
+        : SequenceIncrementor,
     });
+
+    props.onTaskCreate(response);
+  };
+
+  const onColumnNameFormSubmit = async (
+    values: z.infer<typeof columnNameFormSchema>
+  ) => {
+    if (!values.name.length) {
+      columnNameForm.setValue('name', props.column.name);
+    }
+    const response = await updateColumn(values, String(props.column.id));
   };
 
   return (
     <Card className="w-[350px] h-full flex flex-col">
       <CardHeader className="py-2 flex-row items-center justify-between border-t-4 border-t-green-500 rounded-tl-lg rounded-tr-lg">
-        <CardTitle>{props.column.name}</CardTitle>
+        <CardTitle>
+          <Form {...columnNameForm}>
+            <form className="space-y-4">
+              <FormField
+                control={columnNameForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        id="name"
+                        className="border-none"
+                        {...field}
+                        onBlur={columnNameForm.handleSubmit(
+                          onColumnNameFormSubmit
+                        )}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+        </CardTitle>
         <div className="space-x-2">
           <Popover>
             <PopoverTrigger asChild>
@@ -117,8 +170,8 @@ const DroppableColumn = (props: props) => {
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className="flex flex-col flex-grow overflow-y-scroll">
-            <CardContent className="px-4">
+            className="flex flex-col flex-grow overflow-y-auto">
+            <CardContent className="px-4 space-y-4">
               {props.column.tasks.map((task, index) => (
                 <Draggable
                   key={task.id}

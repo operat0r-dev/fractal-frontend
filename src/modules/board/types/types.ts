@@ -15,7 +15,7 @@ export type Column = {
 };
 
 export type CreateTaskRequest = {
-  name: string;
+  title: string;
   column_id: number;
   seq: number;
 };
@@ -29,4 +29,20 @@ export type Task = {
   updated_at: string;
 };
 
-export type BoardResponse = {};
+export type BoardResponse = {
+  id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
+  workspace_id: number;
+  columns: Column[];
+};
+
+export type MoveTaskRequest = {
+  column_id: number;
+  seq: number;
+};
+
+export type ReorderTaskRequest = {
+  seq: number;
+};

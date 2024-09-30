@@ -25,6 +25,7 @@ import { useParams } from 'react-router-dom';
 import useBoardApi from './api';
 import type { Column, Task } from './types/types';
 import DroppableColumn from './components/DroppableColumn';
+import { SequenceIncrementor } from './constants/SequenceConstants';
 
 const formSchema = z.object({
   board_id: z.number(),
@@ -32,13 +33,33 @@ const formSchema = z.object({
 });
 
 const reorder = (list: Task[], startIndex: number, endIndex: number) => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
+  const tasksArray = Array.from(list);
+  const [taskToReorder] = tasksArray.splice(startIndex, 1);
+  tasksArray.splice(endIndex, 0, taskToReorder);
 
-  return result.map((task, index) => {
-    return { ...task, seq: index + 1 };
-  });
+  const result = calculateSequenceNumber(tasksArray, endIndex);
+  const { id, seq } = result[endIndex];
+
+  return { result, id, seq };
+};
+
+const calculateSequenceNumber = (tasks: Task[], taskIndex: number) => {
+  const reorderedTasks = [...tasks];
+
+  if (tasks.length === 1) {
+    reorderedTasks[taskIndex].seq = SequenceIncrementor;
+  } else if (taskIndex === 0 && tasks.length > 1) {
+    reorderedTasks[taskIndex].seq = reorderedTasks[taskIndex + 1].seq / 2;
+  } else if (taskIndex === reorderedTasks.length - 1) {
+    reorderedTasks[taskIndex].seq =
+      reorderedTasks[taskIndex - 1].seq + SequenceIncrementor;
+  } else {
+    reorderedTasks[taskIndex].seq =
+      (reorderedTasks[taskIndex + 1].seq + reorderedTasks[taskIndex - 1].seq) /
+      2;
+  }
+
+  return reorderedTasks;
 };
 
 const move = (
@@ -53,24 +74,51 @@ const move = (
 
   destClone.splice(droppableDestination.index, 0, removed);
 
-  const result: { [key: string]: Column } = {};
-  result[droppableSource.droppableId] = {
+  const calculateSequenceNumber = (tasks: Task[], taskIndex: number) => {
+    if (tasks.length === 1) {
+      return (tasks[taskIndex].seq = SequenceIncrementor);
+    } else if (taskIndex === 0 && tasks.length > 1) {
+      return tasks[taskIndex + 1].seq / 2;
+    } else if (taskIndex === tasks.length - 1) {
+      return tasks[taskIndex - 1].seq + SequenceIncrementor;
+    }
+    return (tasks[taskIndex + 1].seq + tasks[taskIndex - 1].seq) / 2;
+  };
+
+  const newSequenceNumber = calculateSequenceNumber(
+    destClone,
+    droppableDestination.index
+  );
+
+  const result: { [key: number]: Column } = {};
+
+  result[+droppableSource.droppableId] = {
     ...source,
     tasks: sourceClone,
   };
-  result[droppableDestination.droppableId] = {
+  result[+droppableDestination.droppableId] = {
     ...destination,
     tasks: destClone.map((task, index) => {
-      return { ...task, column_id: Number(destination.id), seq: index + 1 };
+      return {
+        ...task,
+        column_id: Number(destination.id),
+        seq:
+          index === droppableDestination.index ? newSequenceNumber : task.seq,
+      };
     }),
   };
 
-  return result;
+  return {
+    result,
+    column_id: destination.id,
+    id: removed.id,
+    seq: newSequenceNumber,
+  };
 };
 
 const Board = () => {
   const { id } = useParams<string>();
-  const { index, storeColumn } = useBoardApi();
+  const { index, storeColumn, moveTask, reorderTask } = useBoardApi();
   const [columns, setColumns] = useState<Column[]>([]);
 
   useEffect(() => {
@@ -104,34 +152,73 @@ const Board = () => {
     setColumns((prevColumns) => [...prevColumns, response]);
   };
 
-  function onDragEnd(result: DropResult) {
+  const onDragEnd = async (result: DropResult) => {
     const { source, destination } = result;
 
-    if (!destination) {
-      return;
-    }
-    const sourceIndex = +source.droppableId;
-    const destinationIndex = +destination.droppableId;
+    if (!destination) return;
 
-    if (sourceIndex === destinationIndex) {
-      handleReorder(sourceIndex, source.index, destination.index);
-    } else {
-      handleMove(sourceIndex, destinationIndex, source, destination);
-    }
-  }
+    const sourceColumnIndex = +source.droppableId;
+    const destinationColumnIndex = +destination.droppableId;
 
-  const handleReorder = (
+    if (
+      sourceColumnIndex === destinationColumnIndex &&
+      source.index !== destination.index
+    ) {
+      await handleReorder(sourceColumnIndex, source.index, destination.index);
+    }
+
+    if (sourceColumnIndex !== destinationColumnIndex) {
+      await handleMove(
+        sourceColumnIndex,
+        destinationColumnIndex,
+        source,
+        destination
+      );
+    }
+  };
+
+  const handleReorder = async (
     columnIndex: number,
     sourceIndex: number,
     destinationIndex: number
   ) => {
-    const items = reorder(
+    const { result, id, seq } = reorder(
       columns[columnIndex].tasks,
       sourceIndex,
       destinationIndex
     );
     const updatedColumns = [...columns];
-    updatedColumns[columnIndex].tasks = items;
+    updatedColumns[columnIndex].tasks = result;
+    handleColumnsUpdate(sourceIndex, destinationIndex, updatedColumns);
+
+    await reorderTask({ seq }, String(id));
+  };
+
+  const handleMove = async (
+    sourceIndex: number,
+    destinationIndex: number,
+    source: DraggableLocation,
+    destination: DraggableLocation
+  ) => {
+    const { result, column_id, id, seq } = move(
+      columns[sourceIndex],
+      columns[destinationIndex],
+      source,
+      destination
+    );
+    const updatedColumns = [...columns];
+    updatedColumns[sourceIndex] = result[sourceIndex];
+    updatedColumns[destinationIndex] = result[destinationIndex];
+    handleColumnsUpdate(sourceIndex, destinationIndex, updatedColumns);
+
+    await moveTask({ column_id, seq }, String(id));
+  };
+
+  const handleColumnsUpdate = (
+    sourceIndex: number,
+    destinationIndex: number,
+    updatedColumns: Column[]
+  ) => {
     setColumns((prevColumns) =>
       prevColumns.map((column, index) => {
         if (index === sourceIndex || index === destinationIndex) {
@@ -143,22 +230,19 @@ const Board = () => {
     );
   };
 
-  const handleMove = (
-    sourceIndex: number,
-    destinationIndex: number,
-    source: DraggableLocation,
-    destination: DraggableLocation
-  ) => {
-    const result = move(
-      columns[sourceIndex],
-      columns[destinationIndex],
-      source,
-      destination
+  const handleTaskCreate = (payload: Task) => {
+    setColumns((prevColumns) =>
+      prevColumns.map((column) => {
+        if (payload.column_id === column.id) {
+          return {
+            ...column,
+            tasks: [...column.tasks, payload],
+          };
+        }
+
+        return column;
+      })
     );
-    const updatedColumns = [...columns];
-    updatedColumns[sourceIndex] = result[sourceIndex];
-    updatedColumns[destinationIndex] = result[destinationIndex];
-    setColumns(updatedColumns);
   };
 
   return (
@@ -170,6 +254,7 @@ const Board = () => {
               key={column.id}
               column={column}
               seq={index}
+              onTaskCreate={handleTaskCreate}
             />
           ))}
         </div>

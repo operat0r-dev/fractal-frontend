@@ -6,12 +6,37 @@ import {
   CreateTaskRequest,
   Column,
   Task,
+  BoardResponse,
+  MoveTaskRequest,
+  ReorderTaskRequest,
 } from './types/types';
 
 const useBoardApi = () => {
   const storeColumn = async (payload: CreateColumnRequest) => {
     const response: AxiosResponse<ApiResponse<Column>> = await apiClient.post(
       '/column/store',
+      payload
+    );
+
+    const apiResponse: ApiResponse<Column> = response.data;
+
+    if (!apiResponse.success) {
+      if (!apiResponse.message) {
+        throw new Error('wiadomosc z frontu');
+      }
+
+      throw new Error('wiadomosc z backu');
+    }
+
+    return apiResponse.data;
+  };
+
+  const updateColumn = async (
+    payload: Partial<CreateColumnRequest>,
+    id: string
+  ) => {
+    const response: AxiosResponse<ApiResponse<Column>> = await apiClient.put(
+      `/column/${id}`,
       payload
     );
 
@@ -64,10 +89,51 @@ const useBoardApi = () => {
     return apiResponse.data;
   };
 
+  const moveTask = async (payload: MoveTaskRequest, id: string) => {
+    const response: AxiosResponse<ApiResponse<[]>> = await apiClient.put(
+      `/task/move/${id}`,
+      payload
+    );
+
+    const apiResponse: ApiResponse<[]> = response.data;
+
+    if (!apiResponse.success) {
+      if (!apiResponse.message) {
+        throw new Error('wiadomosc z frontu');
+      }
+
+      throw new Error('wiadomosc z backu');
+    }
+
+    return apiResponse.data;
+  };
+
+  const reorderTask = async (payload: ReorderTaskRequest, id: string) => {
+    const response: AxiosResponse<ApiResponse<[]>> = await apiClient.put(
+      `/task/reorder/${id}`,
+      payload
+    );
+
+    const apiResponse: ApiResponse<[]> = response.data;
+
+    if (!apiResponse.success) {
+      if (!apiResponse.message) {
+        throw new Error('wiadomosc z frontu');
+      }
+
+      throw new Error('wiadomosc z backu');
+    }
+
+    return apiResponse.data;
+  };
+
   return {
     index,
     storeColumn,
     storeTask,
+    moveTask,
+    reorderTask,
+    updateColumn,
   };
 };
 

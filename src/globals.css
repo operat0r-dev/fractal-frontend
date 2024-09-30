@@ -114,6 +114,24 @@
       'rlig' 1,
       'calt' 1;
   }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground));
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #888;
+  }
 }
 
 @layer components {
@@ -128,5 +146,15 @@
   .app-layout {
     height: 100%;
     margin-top: var(--header-height);
+  }
+
+  .board-entry {
+    &:hover {
+      @apply border-foreground;
+
+      .board-entry-edit-btn {
+        @apply flex;
+      }
+    }
   }
 }
