@@ -24,52 +24,60 @@ import {
   SelectValue,
   SelectItem,
 } from '@/components/ui/select';
-import apiClient from '@/apiClient';
 import { Link } from 'react-router-dom';
 import type { Board } from '../types/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTranslation } from 'react-i18next';
+import useBoardApi from '@/modules/board/api';
 
 type props = {
   boards?: Board[];
+  onBoardCreate: (payload: Board) => void;
 };
 
 const formSchema = z.object({
-  workspaceId: z.number(),
+  workspace_id: z.number(),
   name: z.string(),
 });
 
-const WorkspaceBoards = (props: props) => {
+const WorkspaceBoards = ({ boards, onBoardCreate }: props) => {
+  const { t } = useTranslation();
+  const { storeBoard } = useBoardApi();
   const workspace = useAppSelector(currentWorkspace);
   const workspaces = useAppSelector((state) => state.workspaces.workspaces);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      workspaceId: workspace?.id,
+      workspace_id: workspace?.id,
       name: '',
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const response = await apiClient.post('/board/store', values);
+    const response = await storeBoard(values);
+    onBoardCreate(response);
   };
 
-  if (!props.boards) {
+  if (!boards) {
     return (
-      <div className="flex gap-4">
-        <Skeleton className="w-[300px] h-[100px]" />
-        <Skeleton className="w-[300px] h-[100px]" />
+      <div className="grid grid-cols-4 justify-evenly gap-4">
+        <Skeleton className="h-[100px]" />
+        <Skeleton className="h-[100px]" />
+        <Skeleton className="h-[100px]" />
+        <Skeleton className="h-[100px]" />
       </div>
     );
   }
 
   return (
-    <div className="flex gap-4">
-      {props.boards.map((board) => (
+    <div className="grid grid-cols-4 justify-evenly gap-4">
+      {boards.map((board) => (
         <Link
-          className="border rounded-md p-4 font-bold w-[300px] h-[100px] bg-destructive"
+          className="border rounded-md p-4 font-bold w-full h-[100px] bg-destructive"
           key={board.id}
-          to={`/board/${board.id}`}>
+          to={`/board/${board.id}`}
+        >
           {board.name}
         </Link>
       ))}
@@ -77,8 +85,9 @@ const WorkspaceBoards = (props: props) => {
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-[300px] h-[100px]">
-            Create new board
+            className="w-full h-[100px]"
+          >
+            {t('boards.create.board')}
           </Button>
         </PopoverTrigger>
         <PopoverContent>
@@ -89,7 +98,7 @@ const WorkspaceBoards = (props: props) => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Board name</FormLabel>
+                    <FormLabel>{t('boards.form.name')}</FormLabel>
                     <FormControl>
                       <Input
                         id="name"
@@ -101,14 +110,15 @@ const WorkspaceBoards = (props: props) => {
               />
               <FormField
                 control={form.control}
-                name="workspaceId"
+                name="workspace_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Workspace</FormLabel>
+                    <FormLabel>{t('boards.form.workspace')}</FormLabel>
                     <FormControl>
                       <Select
                         onValueChange={(e) => field.onChange(Number(e))}
-                        defaultValue={String(field.value)}>
+                        defaultValue={String(field.value)}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose workspace" />
                         </SelectTrigger>
@@ -116,7 +126,8 @@ const WorkspaceBoards = (props: props) => {
                           {workspaces.map((workspace) => (
                             <SelectItem
                               key={workspace.id}
-                              value={String(workspace.id)}>
+                              value={String(workspace.id)}
+                            >
                               {workspace.name}
                             </SelectItem>
                           ))}
@@ -128,8 +139,9 @@ const WorkspaceBoards = (props: props) => {
               />
               <Button
                 variant="default"
-                onClick={form.handleSubmit(onSubmit)}>
-                Create
+                onClick={form.handleSubmit(onSubmit)}
+              >
+                {t('general.submit')}
               </Button>
             </form>
           </Form>

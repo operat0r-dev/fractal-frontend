@@ -4,6 +4,7 @@ export type Workspace = {
   created_at: string;
   updated_at: string;
   boards: Board[];
+  current: boolean;
 };
 
 export type Board = {

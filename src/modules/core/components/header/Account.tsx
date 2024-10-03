@@ -31,6 +31,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/hooks/use-toast';
 import { setWorkspaces } from '@/modules/workspaces/slices/workspaces';
 import { Form, FormField, FormItem, FormControl } from '@/components/ui/form';
+import { useTranslation } from 'react-i18next';
 
 type AccountProps = {
   user: User | null;
@@ -45,6 +46,7 @@ const Account = (props: AccountProps) => {
   const { workspaces } = useAppSelector((state) => state.workspaces);
   const { createWorkspace } = useWorkspacesApi();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -63,12 +65,12 @@ const Account = (props: AccountProps) => {
       setOpen(false);
 
       toast({
-        description: 'Workspace created successfully',
+        description: t('workspace.create.success'),
         variant: 'success',
       });
     } catch (error) {
       toast({
-        description: 'An error occured during workspace creation.',
+        description: t('workspace.create.error'),
         variant: 'destructive',
       });
     }
@@ -80,17 +82,22 @@ const Account = (props: AccountProps) => {
         <Button
           variant="secondary"
           size="icon"
-          className="rounded-full h-8 w-8">
-          <span className="sr-only">My account</span>
+          className="rounded-full h-8 w-8"
+        >
+          <span className="uppercase">{props.user?.email.charAt(0)}</span>
+          <span className="sr-only">{t('accountDropdown.myAccount')}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="p-4">
-        <DropdownMenuLabel>My account</DropdownMenuLabel>
+        className="p-4"
+      >
+        <DropdownMenuLabel>{t('accountDropdown.myAccount')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <div className="flex gap-4 items-center mb-2">
-          <div className="rounded-full h-9 w-9 bg-muted"></div>
+          <div className="flex items-center justify-center rounded-full h-9 w-9 bg-muted">
+            <span className="uppercase">{props.user?.email.charAt(0)}</span>
+          </div>
           <div>
             <p className="font-medium">{props.user?.name}</p>
             <p className="text-sm">{props.user?.email}</p>
@@ -98,8 +105,9 @@ const Account = (props: AccountProps) => {
         </div>
         <DropdownMenuItem
           onClick={() => navigate('/settings')}
-          className="justify-between">
-          Manage account
+          className="justify-between"
+        >
+          {t('accountDropdown.manageAccount')}
           <ExternalLink className="h-4 w-4" />
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -107,27 +115,29 @@ const Account = (props: AccountProps) => {
           onClick={() => {
             dispatch(logout());
             navigate('/login');
-          }}>
-          Logout
+          }}
+        >
+          {t('general.logout')}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="gap-4"
-          onClick={() => setOpen(true)}>
+          onClick={() => setOpen(true)}
+        >
           <Users className="h-4 w-4" />
-          Create workspace
+          {t('accountDropdown.createWorkspace')}
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
       </DropdownMenuContent>
 
       <Dialog
         open={open}
-        onOpenChange={setOpen}>
+        onOpenChange={setOpen}
+      >
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Create workspace</DialogTitle>
+            <DialogTitle>{t('workspace.create.title')}</DialogTitle>
             <DialogDescription>
-              Here you can create your brand new workspace.
+              {t('workspace.create.description')}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -141,8 +151,9 @@ const Account = (props: AccountProps) => {
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label
                           htmlFor="name"
-                          className="text-right">
-                          Workspace name
+                          className="text-right"
+                        >
+                          {t('workspace.form.name')}
                         </Label>
                         <Input
                           id="name"
@@ -159,8 +170,9 @@ const Account = (props: AccountProps) => {
           <DialogFooter>
             <Button
               type="submit"
-              onClick={form.handleSubmit(onSubmit)}>
-              Submit
+              onClick={form.handleSubmit(onSubmit)}
+            >
+              {t('general.submit')}
             </Button>
           </DialogFooter>
         </DialogContent>

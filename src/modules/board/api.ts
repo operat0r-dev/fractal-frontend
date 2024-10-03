@@ -9,7 +9,9 @@ import {
   BoardResponse,
   MoveTaskRequest,
   ReorderTaskRequest,
+  CreateBoardRequest,
 } from './types/types';
+import { Board } from '../workspaces/types/types';
 
 const useBoardApi = () => {
   const storeColumn = async (payload: CreateColumnRequest) => {
@@ -41,6 +43,22 @@ const useBoardApi = () => {
     );
 
     const apiResponse: ApiResponse<Column> = response.data;
+
+    if (!apiResponse.success) {
+      if (!apiResponse.message) {
+        throw new Error('wiadomosc z frontu');
+      }
+
+      throw new Error('wiadomosc z backu');
+    }
+
+    return apiResponse.data;
+  };
+
+  const storeBoard = async (payload: CreateBoardRequest) => {
+    const response = await apiClient.post('/board/store', payload);
+
+    const apiResponse: ApiResponse<Board> = response.data;
 
     if (!apiResponse.success) {
       if (!apiResponse.message) {
@@ -134,6 +152,7 @@ const useBoardApi = () => {
     moveTask,
     reorderTask,
     updateColumn,
+    storeBoard,
   };
 };
 

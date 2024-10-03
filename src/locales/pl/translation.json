@@ -1,0 +1,57 @@
+{
+    "general": {
+        "logout": "Wyloguj się",
+        "submit": "Zatwierdź",
+        "save": "Zapisz",
+        "cancel": "Anuluj"
+    },
+    "accountDropdown": {
+        "myAccount": "Moje konto",
+        "manageAccount": "Zarządzaj kontem",
+        "createWorkspace": "Utwórz obszar roboczy"
+    },
+    "workspace": {
+        "title": "Obszary robocze",
+        "current": "Aktywny obszar roboczy",
+        "yourWorkspaces": "Twoje obszary robocze",
+        "create": {
+            "title": "Utwórz przestrzeń roboczą",
+            "description": "Tutaj możesz utworzyć twój nowy obszar roboczy.",
+            "success": "Utworzono obrzar roboczy",
+            "error": "Podczas tworzenia obszaru roboczego wystąpił błąd"
+        },
+        "error": {
+            "getMany": "Podczas pobierania obszarów roboczych wystąpił błąd",
+            "setCurrent": "Podczas zmiany obszaru roboczego wystąpił błąd",
+            "changeName": "Podczas edycji nazwy obszaru roboczego wystąpił błąd"
+        },
+        "form": {
+            "name": "Nazwa"
+        }
+    },
+    "boards": {
+        "title": "Tablice",
+        "create": {
+            "board": "Utwórz tablicę",
+            "column": "Utwórz kolumnę"
+        },
+        "form": {
+            "name": "Nazwa",
+            "workspace": "Obszar roboczy"
+        }
+        
+    },
+    "column": {
+        "delete": "Usuń kolumnę",
+        "changeColor": "Zmień kolor",
+        "form": {
+            "name": "Nazwa",
+            "color": "Kolor"
+        }
+    },
+    "task": {
+        "form": {
+            "name": "Nazwa"
+        }
+    }
+}

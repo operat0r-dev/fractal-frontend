@@ -15,6 +15,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
 import type { Workspace } from '../types/types';
+import { useTranslation } from 'react-i18next';
+import { useToast } from '@/hooks/use-toast';
 
 type props = {
   workspace?: Workspace;
@@ -24,9 +26,11 @@ const formSchema = z.object({
   name: z.string(),
 });
 
-const WorkspaceName = (props: props) => {
-  const { updateWorkspace } = useWorkspacesApi();
+const WorkspaceName = ({ workspace }: props) => {
   const [editMode, setEditMode] = useState<boolean>(false);
+  const { t } = useTranslation();
+  const { updateWorkspace } = useWorkspacesApi();
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,23 +41,26 @@ const WorkspaceName = (props: props) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      if (!props.workspace?.id) return;
-      const response = await updateWorkspace(
-        String(props.workspace.id),
-        values
-      );
+      if (!workspace?.id) return;
+      const response = await updateWorkspace(String(workspace.id), values);
+      form.setValue('name', response.name);
       toggleEditMode(false);
-    } catch (error) {}
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        description: t('workspace.error.changeName'),
+      });
+    }
   };
 
   const toggleEditMode = (state: boolean) => {
-    if (!props.workspace) return;
+    if (!workspace) return;
 
-    form.setValue('name', props.workspace.name);
+    form.setValue('name', workspace.name);
     setEditMode(state);
   };
 
-  if (!props.workspace) {
+  if (!workspace) {
     return (
       <div className="flex gap-4 items-center">
         <Skeleton className="rounded-sm h-12 w-12 bg-muted font-medium text-lg" />
@@ -66,9 +73,7 @@ const WorkspaceName = (props: props) => {
     return (
       <div className="flex items-center gap-4">
         <div className="flex items-center justify-center rounded-sm h-12 w-12 bg-muted">
-          <span className="font-bold text-xl">
-            {props.workspace?.name.charAt(0)}
-          </span>
+          <span className="font-bold text-xl">{workspace?.name.charAt(0)}</span>
         </div>
         <Form {...form}>
           <form>
@@ -92,13 +97,15 @@ const WorkspaceName = (props: props) => {
         </Form>
         <Button
           variant="default"
-          onClick={form.handleSubmit(onSubmit)}>
-          Save
+          onClick={form.handleSubmit(onSubmit)}
+        >
+          {t('general.save')}
         </Button>
         <Button
           variant="outline"
-          onClick={() => toggleEditMode(false)}>
-          Cancel
+          onClick={() => toggleEditMode(false)}
+        >
+          {t('general.cancel')}
         </Button>
       </div>
     );
@@ -107,16 +114,15 @@ const WorkspaceName = (props: props) => {
   return (
     <div className="flex gap-4 items-center">
       <div className="flex items-center justify-center rounded-sm h-12 w-12 bg-muted">
-        <span className="font-bold text-xl">
-          {props.workspace?.name.charAt(0)}
-        </span>
+        <span className="font-bold text-xl">{workspace?.name.charAt(0)}</span>
       </div>
-      <p className="text-lg font-medium">{props.workspace?.name}</p>
+      <p className="text-lg font-medium">{workspace?.name}</p>
 
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => toggleEditMode(true)}>
+        onClick={() => toggleEditMode(true)}
+      >
         <Edit className="h-4 w-4" />
       </Button>
     </div>

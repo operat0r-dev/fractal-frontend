@@ -1,0 +1,57 @@
+{
+    "general": {
+        "logout": "Logout",
+        "submit": "Submit",
+        "save": "Save",
+        "cancel": "Candel"
+    },
+    "accountDropdown": {
+        "myAccount": "My account",
+        "manageAccount": "Manage account",
+        "createWorkspace": "Create workspace"
+    },
+    "workspace": {
+        "title": "Workspaces",
+        "current": "Current workspae",
+        "yourWorkspaces": "Your workspaces",
+        "create": {
+            "title": "Add workspace",
+            "description": "Here you can create your brand new workspace.",
+            "success": "Workspace created successfully",
+            "error": "An error occured during workspace creation"
+        },
+        "error": {
+            "getMany": "An error occured during loading workspaces",
+            "setCurrent": "An error occured during workspace change",
+            "changeName": "An error occured during workspace name change"
+        },
+        "form": {
+            "name": "Name"
+        }
+    },
+    "boards": {
+        "title": "Boards",
+        "create": {
+            "board": "Add board",
+            "column": "Add column"
+        },
+        "form": {
+            "name": "name",
+            "workspace": "Workspace"
+        }
+        
+    },
+    "column": {
+        "delete": "Delete column",
+        "changeColor": "Change color",
+        "form": {
+            "name": "Namea",
+            "color": "Color"
+        }
+    },
+    "task": {
+        "form": {
+            "name": "Name"
+        }
+    }
+}
