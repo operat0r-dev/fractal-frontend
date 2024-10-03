@@ -1,36 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  Form,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from '@/components/ui/popover';
 import {
   DragDropContext,
   DropResult,
   DraggableLocation,
 } from '@hello-pangea/dnd';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import useBoardApi from './api';
 import type { Column, Task } from './types/types';
-import DroppableColumn from './components/DroppableColumn';
+import BoardColumn from './components/BoardColumn';
 import { SequenceIncrementor } from './constants/SequenceConstants';
-
-const formSchema = z.object({
-  board_id: z.number(),
-  name: z.string(),
-});
+import CreateColumnPopover from './components/BoardColumn/CreateColumnPopover';
+import EditTaskSidebar from './components/EditTaskSidebar';
 
 const reorder = (list: Task[], startIndex: number, endIndex: number) => {
   const tasksArray = Array.from(list);
@@ -118,7 +98,7 @@ const move = (
 
 const Board = () => {
   const { id } = useParams<string>();
-  const { index, storeColumn, moveTask, reorderTask } = useBoardApi();
+  const { index, moveTask, reorderTask } = useBoardApi();
   const [columns, setColumns] = useState<Column[]>([]);
 
   useEffect(() => {
@@ -138,19 +118,6 @@ const Board = () => {
       isMounted = false;
     };
   }, [id]);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      board_id: Number(id),
-      name: '',
-    },
-  });
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const response = await storeColumn({ ...values, seq: columns.length + 1 });
-    setColumns((prevColumns) => [...prevColumns, response]);
-  };
 
   const onDragEnd = async (result: DropResult) => {
     const { source, destination } = result;
@@ -245,56 +212,49 @@ const Board = () => {
     );
   };
 
-  return (
-    <div className="flex gap-4 h-full">
-      <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex h-full gap-4">
-          {columns.map((column, index) => (
-            <DroppableColumn
-              key={column.id}
-              column={column}
-              seq={index}
-              onTaskCreate={handleTaskCreate}
-            />
-          ))}
-        </div>
-      </DragDropContext>
+  const handleColorChange = (payload: Column) => {
+    setColumns((prevColumns) =>
+      prevColumns.map((column) => {
+        if (payload.id === column.id) {
+          return {
+            ...column,
+            color: payload.color,
+          };
+        }
 
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-[300px] h-[100px]">
-            Create new column
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent>
-          <Form {...form}>
-            <form className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Column name</FormLabel>
-                    <FormControl>
-                      <Input
-                        id="name"
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
+        return column;
+      })
+    );
+  };
+
+  const handleColumnCreate = (payload: Column) => {
+    setColumns((prevColumns) => [...prevColumns, payload]);
+  };
+
+  return (
+    <div className="relative h-full w-full overflow-hidden">
+      <div className="flex gap-4 h-full w-full overflow-auto">
+        <DragDropContext onDragEnd={onDragEnd}>
+          <div className="flex h-full gap-4">
+            {columns.map((column, index) => (
+              <BoardColumn
+                key={column.id}
+                column={column}
+                seq={index}
+                onTaskCreate={handleTaskCreate}
+                onColorChange={handleColorChange}
               />
-              <Button
-                variant="default"
-                onClick={form.handleSubmit(onSubmit)}>
-                Create
-              </Button>
-            </form>
-          </Form>
-        </PopoverContent>
-      </Popover>
+            ))}
+          </div>
+        </DragDropContext>
+
+        <CreateColumnPopover
+          onColumnCreate={handleColumnCreate}
+          newColumnSeq={columns.length + 1}
+        />
+      </div>
+
+      <EditTaskSidebar />
     </div>
   );
 };

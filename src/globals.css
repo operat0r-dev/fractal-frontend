@@ -117,6 +117,7 @@
 
   ::-webkit-scrollbar {
     width: 5px;
+    height: 5px;
   }
 
   ::-webkit-scrollbar-track {
@@ -150,11 +151,17 @@
 
   .board-entry {
     &:hover {
-      @apply border-foreground;
+      @apply border-muted-foreground;
 
       .board-entry-edit-btn {
         @apply flex;
       }
     }
+  }
+}
+
+@layer utilities {
+  .text-sideways {
+    writing-mode: vertical-lr;
   }
 }

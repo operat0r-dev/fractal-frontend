@@ -27,10 +27,10 @@ const App = () => {
   }
 
   return (
-    <>
+    <div className="w-[100vw] h-full">
       <Outlet />
       <Toaster />
-    </>
+    </div>
   );
 };
 
