@@ -3,7 +3,10 @@
         "logout": "Logout",
         "submit": "Submit",
         "save": "Save",
-        "cancel": "Candel"
+        "cancel": "Cancel",
+        "close": "Close",
+        "search": "Search...",
+        "noResults": "No results"
     },
     "accountDropdown": {
         "myAccount": "My account",
@@ -17,13 +20,13 @@
         "create": {
             "title": "Add workspace",
             "description": "Here you can create your brand new workspace.",
-            "success": "Workspace created successfully",
-            "error": "An error occured during workspace creation"
+            "success": "Workspace created successfully"
         },
         "error": {
             "getMany": "An error occured during loading workspaces",
             "setCurrent": "An error occured during workspace change",
-            "changeName": "An error occured during workspace name change"
+            "changeName": "An error occured during workspace name change",
+            "create": "An error occured during workspace creation"
         },
         "form": {
             "name": "Name"
@@ -45,13 +48,21 @@
         "delete": "Delete column",
         "changeColor": "Change color",
         "form": {
-            "name": "Namea",
+            "name": "Name",
             "color": "Color"
         }
     },
     "task": {
         "form": {
             "name": "Name"
+        }
+    },
+    "label": {
+        "craete": "Add label",
+        "choose": "Choose labels",
+        "form": {
+            "name": "Name",
+            "color": "Color"
         }
     }
 }

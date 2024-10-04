@@ -7,7 +7,7 @@ import {
   FormField,
   FormItem,
   FormMessage,
-  FormDescription
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { z } from 'zod';
@@ -65,7 +65,8 @@ export default function Register() {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="w-full space-y-4">
+            className="w-full space-y-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -133,14 +134,16 @@ export default function Register() {
             />
             <Button
               className="w-full"
-              variant="default">
+              variant="default"
+            >
               Register
             </Button>
           </form>
         </Form>
         <NavLink
           to={'/login'}
-          className="font-medium hover:underline">
+          className="font-medium hover:underline"
+        >
           Back to login
         </NavLink>
       </div>

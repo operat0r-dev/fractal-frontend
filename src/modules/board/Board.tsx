@@ -5,12 +5,15 @@ import {
   DraggableLocation,
 } from '@hello-pangea/dnd';
 import { useParams } from 'react-router-dom';
-import useBoardApi from './api';
-import type { Column, Task } from './types/types';
+import useBoardApi from './api/api';
+import type { Column, Task } from './types/Board';
 import BoardColumn from './components/BoardColumn';
 import { SequenceIncrementor } from './constants/SequenceConstants';
 import CreateColumnPopover from './components/BoardColumn/CreateColumnPopover';
 import EditTaskSidebar from './components/EditTaskSidebar';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Tag } from 'lucide-react';
 
 const reorder = (list: Task[], startIndex: number, endIndex: number) => {
   const tasksArray = Array.from(list);
@@ -232,7 +235,16 @@ const Board = () => {
   };
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
+    <div className="relative h-full w-full overflow-hidden p-10">
+      <Link to={`/board/${id}/labels`}>
+        <Button
+          size="sm"
+          variant="outline"
+        >
+          <Tag className="h-4 w-4 mr-2" />
+          Labels
+        </Button>
+      </Link>
       <div className="flex gap-4 h-full w-full overflow-auto">
         <DragDropContext onDragEnd={onDragEnd}>
           <div className="flex h-full gap-4">

@@ -14,12 +14,12 @@ import {
 } from '@/components/ui/popover';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import type { Column } from '../../types/types';
+import type { Column } from '../../types/Board';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { predefinedColors } from '../../constants/PredefinedColors';
-import useBoardApi from '../../api';
+import useBoardApi from '@/modules/board/api/api';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';

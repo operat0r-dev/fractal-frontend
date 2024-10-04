@@ -16,9 +16,9 @@ import { Input } from '@/components/ui/input';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import useBoardApi from '@/modules/board/api';
+import useBoardApi from '@/modules/board/api/api';
 import { SequenceIncrementor } from '@/modules/board/constants/SequenceConstants';
-import type { Task, Column } from '../../types/types';
+import type { Task, Column } from '../../types/Board';
 import { useTranslation } from 'react-i18next';
 
 type props = {

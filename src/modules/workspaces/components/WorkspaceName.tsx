@@ -46,10 +46,12 @@ const WorkspaceName = ({ workspace }: props) => {
       form.setValue('name', response.name);
       toggleEditMode(false);
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        description: t('workspace.error.changeName'),
-      });
+      if (error instanceof Error) {
+        toast({
+          variant: 'destructive',
+          description: t('workspace.error.changeName'),
+        });
+      }
     }
   };
 

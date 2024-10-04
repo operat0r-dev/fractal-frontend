@@ -18,10 +18,10 @@ import { EllipsisVertical, Trash, ChevronRight, Files } from 'lucide-react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import useBoardApi from '@/modules/board/api';
+import useBoardApi from '@/modules/board/api/api';
 
 import { cn } from '@/lib/utils';
-import type { Column, Task } from '../../types/types';
+import type { Column, Task } from '../../types/Board';
 import { useTranslation } from 'react-i18next';
 import { predefinedColors } from '../../constants/PredefinedColors';
 import CreateTaskPopover from './CreateTaskPopover.';

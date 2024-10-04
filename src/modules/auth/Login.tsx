@@ -44,7 +44,9 @@ export default function Login() {
 
       navigate('/settings');
     } catch (error) {
-      form.setError('password', { message: 'Invalid email or password' });
+      if (error instanceof Error) {
+        form.setError('password', { message: 'Invalid email or password' });
+      }
     }
   };
 
@@ -54,7 +56,8 @@ export default function Login() {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="w-full space-y-4">
+            className="w-full space-y-4"
+          >
             <FormField
               control={form.control}
               name="email"
@@ -89,7 +92,8 @@ export default function Login() {
             <Button
               variant="default"
               type="submit"
-              className="w-full">
+              className="w-full"
+            >
               Login
             </Button>
           </form>
@@ -97,13 +101,15 @@ export default function Login() {
         <div className="my-4">
           <NavLink
             className="font-medium hover:underline"
-            to={'/forgot'}>
+            to={'/forgot'}
+          >
             Forgot password?{' '}
           </NavLink>
           &#x2022;
           <NavLink
             className="font-medium hover:underline"
-            to={'/register'}>
+            to={'/register'}
+          >
             {' '}
             Create an account.
           </NavLink>

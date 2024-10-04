@@ -34,10 +34,12 @@ const WorkspaceSelector = () => {
         const response = await getUserWorkspaces();
         dispatch(setWorkspaces(response));
       } catch (error) {
-        toast({
-          description: t('workspace.error.getMany'),
-          variant: 'destructive',
-        });
+        if (error instanceof Error) {
+          toast({
+            description: t('workspace.error.getMany'),
+            variant: 'destructive',
+          });
+        }
       }
     };
 
@@ -57,10 +59,12 @@ const WorkspaceSelector = () => {
       );
       navigate(`/workspace/${id}`);
     } catch (error) {
-      toast({
-        description: t('workspace.error.setCurrent'),
-        variant: 'destructive',
-      });
+      if (error instanceof Error) {
+        toast({
+          description: t('workspace.error.setCurrent'),
+          variant: 'destructive',
+        });
+      }
     }
   };
 

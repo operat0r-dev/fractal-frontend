@@ -1,3 +1,5 @@
+import type { Label } from './TaskLabel';
+
 export type CreateColumnRequest = {
   name: string;
   board_id: number;
@@ -29,6 +31,7 @@ export type Task = {
   seq: number;
   created_at: string;
   updated_at: string;
+  labels: Label[];
 };
 
 export type CreateBoardRequest = {
