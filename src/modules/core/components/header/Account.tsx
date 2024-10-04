@@ -69,10 +69,12 @@ const Account = (props: AccountProps) => {
         variant: 'success',
       });
     } catch (error) {
-      toast({
-        description: t('workspace.create.error'),
-        variant: 'destructive',
-      });
+      if (error instanceof Error) {
+        toast({
+          description: t('workspace.error.create'),
+          variant: 'destructive',
+        });
+      }
     }
   };
 

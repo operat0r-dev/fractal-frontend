@@ -1,6 +1,6 @@
-import type { Column } from '../types/types';
+import type { Column } from '../types/Board';
 
-import type { Task } from '../types/types';
+import type { Task } from '../types/Board';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import ControlPanel from './BoardColumn/ControlPanel';

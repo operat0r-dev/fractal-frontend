@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './modules/auth/slices/auth';
 import workspacesReducer from './modules/workspaces/slices/workspaces';
-import boardReducer from './modules/board/board';
+import boardReducer from './modules/board/slices/boardSlice';
 
 export const store = configureStore({
   reducer: {

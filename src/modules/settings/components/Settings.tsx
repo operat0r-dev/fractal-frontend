@@ -28,10 +28,12 @@ const Settings = () => {
     try {
       await updateUser(values);
     } catch (error) {
-      form.setError('email', {
-        type: 'validate',
-        message: 'Email jest zajęty',
-      });
+      if (error instanceof Error) {
+        form.setError('email', {
+          type: 'validate',
+          message: 'Email jest zajęty',
+        });
+      }
     }
   };
 
@@ -78,7 +80,8 @@ const Settings = () => {
           </div>
           <Button
             type="submit"
-            variant={'default'}>
+            variant={'default'}
+          >
             Save changes
           </Button>
         </form>

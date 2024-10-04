@@ -10,8 +10,8 @@ import {
   MoveTaskRequest,
   ReorderTaskRequest,
   CreateBoardRequest,
-} from './types/types';
-import { Board } from '../workspaces/types/types';
+} from '@/modules/board/types/Board';
+import { Board } from '@/modules/workspaces/types/types';
 
 const useBoardApi = () => {
   const storeColumn = async (payload: CreateColumnRequest) => {

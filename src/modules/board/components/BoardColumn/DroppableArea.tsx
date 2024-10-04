@@ -1,5 +1,5 @@
 import { Droppable, Draggable, type DraggableStyle } from '@hello-pangea/dnd';
-import type { Column } from '../../types/types';
+import type { Column } from '../../types/Board';
 import BoardEntry from './../BoardEntry';
 
 import { cn } from '@/lib/utils';

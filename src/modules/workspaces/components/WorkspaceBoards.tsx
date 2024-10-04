@@ -28,7 +28,7 @@ import { Link } from 'react-router-dom';
 import type { Board } from '../types/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
-import useBoardApi from '@/modules/board/api';
+import useBoardApi from '@/modules/board/api/api';
 
 type props = {
   boards?: Board[];

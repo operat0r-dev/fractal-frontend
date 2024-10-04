@@ -3,7 +3,10 @@
         "logout": "Wyloguj się",
         "submit": "Zatwierdź",
         "save": "Zapisz",
-        "cancel": "Anuluj"
+        "cancel": "Anuluj",
+        "close": "Zamknij",
+        "search": "Szukaj...",
+        "noResults": "Brak wyników"
     },
     "accountDropdown": {
         "myAccount": "Moje konto",
@@ -52,6 +55,15 @@
     "task": {
         "form": {
             "name": "Nazwa"
+        }
+    },
+    "label": {
+        "create": "Dodaj etykietę",
+        "preview": "Podgląd",
+        "choose": "Wybierz etykiety",
+        "form": {
+            "name": "Nazwa",
+            "color": "Kolor"
         }
     }
 }
