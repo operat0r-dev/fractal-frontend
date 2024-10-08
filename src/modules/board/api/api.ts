@@ -1,26 +1,22 @@
 import apiClient from '@/apiClient';
 import { ApiResponse } from '@/types';
 import { AxiosResponse } from 'axios';
+import { BoardResponse, CreateBoardRequest } from '@/modules/board/types/Board';
 import {
   CreateColumnRequest,
   CreateTaskRequest,
-  Column,
-  Task,
-  BoardResponse,
-  MoveTaskRequest,
-  ReorderTaskRequest,
-  CreateBoardRequest,
-} from '@/modules/board/types/Board';
+  UpdateTaskRequest,
+  ApiColumn,
+  ApiTask,
+} from '../types/apiTypes';
 import { Board } from '@/modules/workspaces/types/types';
 
 const useBoardApi = () => {
   const storeColumn = async (payload: CreateColumnRequest) => {
-    const response: AxiosResponse<ApiResponse<Column>> = await apiClient.post(
-      '/column/store',
-      payload
-    );
+    const response: AxiosResponse<ApiResponse<ApiColumn>> =
+      await apiClient.post('/column/store', payload);
 
-    const apiResponse: ApiResponse<Column> = response.data;
+    const apiResponse: ApiResponse<ApiColumn> = response.data;
 
     if (!apiResponse.success) {
       if (!apiResponse.message) {
@@ -37,12 +33,12 @@ const useBoardApi = () => {
     payload: Partial<CreateColumnRequest>,
     id: string
   ) => {
-    const response: AxiosResponse<ApiResponse<Column>> = await apiClient.put(
+    const response: AxiosResponse<ApiResponse<ApiColumn>> = await apiClient.put(
       `/column/${id}`,
       payload
     );
 
-    const apiResponse: ApiResponse<Column> = response.data;
+    const apiResponse: ApiResponse<ApiColumn> = response.data;
 
     if (!apiResponse.success) {
       if (!apiResponse.message) {
@@ -89,12 +85,12 @@ const useBoardApi = () => {
   };
 
   const storeTask = async (payload: CreateTaskRequest) => {
-    const response: AxiosResponse<ApiResponse<Task>> = await apiClient.post(
+    const response: AxiosResponse<ApiResponse<ApiTask>> = await apiClient.post(
       '/task/store',
       payload
     );
 
-    const apiResponse: ApiResponse<Task> = response.data;
+    const apiResponse: ApiResponse<ApiTask> = response.data;
 
     if (!apiResponse.success) {
       if (!apiResponse.message) {
@@ -107,28 +103,12 @@ const useBoardApi = () => {
     return apiResponse.data;
   };
 
-  const moveTask = async (payload: MoveTaskRequest, id: string) => {
+  const updateTask = async (
+    id: number,
+    payload: Partial<UpdateTaskRequest>
+  ) => {
     const response: AxiosResponse<ApiResponse<[]>> = await apiClient.put(
-      `/task/move/${id}`,
-      payload
-    );
-
-    const apiResponse: ApiResponse<[]> = response.data;
-
-    if (!apiResponse.success) {
-      if (!apiResponse.message) {
-        throw new Error('wiadomosc z frontu');
-      }
-
-      throw new Error('wiadomosc z backu');
-    }
-
-    return apiResponse.data;
-  };
-
-  const reorderTask = async (payload: ReorderTaskRequest, id: string) => {
-    const response: AxiosResponse<ApiResponse<[]>> = await apiClient.put(
-      `/task/reorder/${id}`,
+      `/task/update/${id}`,
       payload
     );
 
@@ -149,8 +129,7 @@ const useBoardApi = () => {
     index,
     storeColumn,
     storeTask,
-    moveTask,
-    reorderTask,
+    updateTask,
     updateColumn,
     storeBoard,
   };

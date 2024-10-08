@@ -29,21 +29,29 @@ const WorkspaceSelector = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchWorkspaces = async () => {
-      try {
-        const response = await getUserWorkspaces();
-        dispatch(setWorkspaces(response));
-      } catch (error) {
-        if (error instanceof Error) {
-          toast({
-            description: t('workspace.error.getMany'),
-            variant: 'destructive',
-          });
+      if (isMounted) {
+        try {
+          const response = await getUserWorkspaces();
+          dispatch(setWorkspaces(response));
+        } catch (error) {
+          if (error instanceof Error) {
+            toast({
+              description: t('workspace.error.getMany'),
+              variant: 'destructive',
+            });
+          }
         }
       }
     };
 
     fetchWorkspaces();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const setCurrentWorkspace = async (id: number) => {

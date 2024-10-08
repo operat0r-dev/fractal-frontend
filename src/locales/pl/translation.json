@@ -64,6 +64,9 @@
         "form": {
             "name": "Nazwa",
             "color": "Kolor"
+        },
+        "error": {
+            "assign": "Podczas przypisywania etykiety wystąpił błąd"
         }
     }
 }
