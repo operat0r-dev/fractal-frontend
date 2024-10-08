@@ -12,8 +12,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { z } from 'zod';
 import { useAuthApi } from './api';
-import { useAppSelector } from '@/hooks';
-import { useEffect } from 'react';
+import LoadingButton from '@/components/ui/loading-button';
+import { useState } from 'react';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Zła nazwa użytkownika' }),
@@ -21,14 +21,9 @@ const formSchema = z.object({
 });
 
 export default function Login() {
-  const tokenData = useAppSelector((state) => state.authData.tokenData);
+  const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const { login } = useAuthApi();
-
-  useEffect(() => {
-    if (!tokenData) return;
-    navigate('/dashboard');
-  }, [navigate, tokenData]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,9 +35,14 @@ export default function Login() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await login(values);
+      setLoading(true);
+      const response = await login(values);
+      setLoading(false);
+      const currentWorkspace = response.workspaces.filter(
+        (workspace) => workspace.pivot.current
+      );
 
-      navigate('/settings');
+      navigate(`/workspace/${currentWorkspace[0].id}`);
     } catch (error) {
       if (error instanceof Error) {
         form.setError('password', { message: 'Invalid email or password' });
@@ -89,13 +89,14 @@ export default function Login() {
                 </FormItem>
               )}
             />
-            <Button
+            <LoadingButton
+              loading={loading}
               variant="default"
               type="submit"
               className="w-full"
             >
               Login
-            </Button>
+            </LoadingButton>
           </form>
         </Form>
         <div className="my-4">
