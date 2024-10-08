@@ -26,5 +26,10 @@ export type User = {
   workspaces: {
     id: number;
     name: string;
+    pivot: {
+      user_id: number;
+      workspace_id: number;
+      current: boolean;
+    };
   }[];
 };

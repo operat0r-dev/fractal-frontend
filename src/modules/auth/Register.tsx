@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import {
@@ -13,6 +12,8 @@ import { Input } from '@/components/ui/input';
 import { z } from 'zod';
 import { useAuthApi } from './api';
 import { NavLink, useNavigate } from 'react-router-dom';
+import LoadingButton from '@/components/ui/loading-button';
+import { useState } from 'react';
 
 const formSchema = z
   .object({
@@ -32,15 +33,25 @@ const formSchema = z
   });
 
 export default function Register() {
+  const [loading, setLoading] = useState<boolean>(false);
   const { register, login } = useAuthApi();
   const navigate = useNavigate();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      setLoading(true);
       await register(values);
-      await login({ email: values.email, password: values.password });
+      const response = await login({
+        email: values.email,
+        password: values.password,
+      });
+      setLoading(false);
 
-      navigate('/settings');
+      const currentWorkspace = response.workspaces.filter(
+        (workspace) => workspace.pivot.current
+      );
+
+      navigate(`/workspace/${currentWorkspace[0].id}`);
     } catch {
       form.setError('email', {
         type: 'validate',
@@ -132,12 +143,13 @@ export default function Register() {
                 </FormItem>
               )}
             />
-            <Button
+            <LoadingButton
+              loading={loading}
               className="w-full"
               variant="default"
             >
               Register
-            </Button>
+            </LoadingButton>
           </form>
         </Form>
         <NavLink

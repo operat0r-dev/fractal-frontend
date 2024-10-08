@@ -26,7 +26,11 @@ export function useAuthApi() {
     }
 
     dispatch(setTokenData(apiResponse.data));
-    await getUser();
+
+    const userResponse = await getUser();
+    dispatch(setUser(userResponse));
+
+    return userResponse;
   };
 
   const register = async (values: RegisterRequest) => {
@@ -59,7 +63,7 @@ export function useAuthApi() {
       throw new Error('wiadomosc z backu');
     }
 
-    dispatch(setUser(apiResponse.data));
+    return apiResponse.data;
   };
 
   return {
