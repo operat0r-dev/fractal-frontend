@@ -1,13 +1,12 @@
 import { Droppable, Draggable, type DraggableStyle } from '@hello-pangea/dnd';
-import type { Column } from '../../types/Board';
 import BoardEntry from './../BoardEntry';
 
 import { cn } from '@/lib/utils';
 
 type props = {
   collapsed: boolean;
-  column: Column;
-  seq: number;
+  columnId: number;
+  taskIds: number[];
 };
 
 const getListStyle = (isDraggingOver: boolean) => ({
@@ -19,9 +18,9 @@ const getItemStyle = (draggableStyle: DraggableStyle | undefined) => ({
   ...draggableStyle,
 });
 
-const DroppableArea = ({ collapsed, column, seq }: props) => {
+const DroppableArea = ({ collapsed, columnId, taskIds }: props) => {
   return (
-    <Droppable droppableId={`${seq}`}>
+    <Droppable droppableId={`${columnId}`}>
       {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
@@ -34,10 +33,10 @@ const DroppableArea = ({ collapsed, column, seq }: props) => {
           )}
         >
           <div className="px-2 space-y-2">
-            {column.tasks.map((task, index) => (
+            {taskIds.map((id, index) => (
               <Draggable
-                key={task.id}
-                draggableId={String(task.id)}
+                key={id}
+                draggableId={String(id)}
                 index={index}
               >
                 {(provided) => (
@@ -47,7 +46,7 @@ const DroppableArea = ({ collapsed, column, seq }: props) => {
                     {...provided.dragHandleProps}
                     style={getItemStyle(provided.draggableProps.style)}
                   >
-                    <BoardEntry task={task} />
+                    <BoardEntry taskId={id} />
                   </div>
                 )}
               </Draggable>

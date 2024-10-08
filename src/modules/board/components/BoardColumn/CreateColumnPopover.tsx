@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/popover';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import type { Column } from '../../types/Board';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -23,9 +22,10 @@ import useBoardApi from '@/modules/board/api/api';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useAppDispatch } from '@/hooks';
+import { addNewColumn } from '../../slices/columnsSlice';
 
 type props = {
-  onColumnCreate: (payload: Column) => void;
   newColumnSeq: number;
 };
 
@@ -35,11 +35,12 @@ const formSchema = z.object({
   color: z.string(),
 });
 
-const CreateColumnPopover = ({ onColumnCreate, newColumnSeq }: props) => {
+const CreateColumnPopover = ({ newColumnSeq }: props) => {
   const { storeColumn } = useBoardApi();
   const { t } = useTranslation();
   const { id } = useParams<string>();
   const [open, setOpen] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
 
   const defaultValues = {
     board_id: Number(id),
@@ -54,7 +55,7 @@ const CreateColumnPopover = ({ onColumnCreate, newColumnSeq }: props) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const response = await storeColumn({ ...values, seq: newColumnSeq });
-    onColumnCreate(response);
+    dispatch(addNewColumn(response));
     setOpen(false);
     form.reset(defaultValues);
   };

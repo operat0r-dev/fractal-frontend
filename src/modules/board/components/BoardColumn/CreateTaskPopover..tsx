@@ -18,12 +18,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import useBoardApi from '@/modules/board/api/api';
 import { SequenceIncrementor } from '@/modules/board/constants/SequenceConstants';
-import type { Task, Column } from '../../types/Board';
 import { useTranslation } from 'react-i18next';
+import { addNewTask, selectTaskById } from '../../slices/tasksSlice';
+import { useAppDispatch, useAppSelector } from '@/hooks';
+import { ReduxColumn } from '../../types/stateTypes';
+import { addColumnTask } from '../../slices/columnsSlice';
 
 type props = {
-  column: Column;
-  onTaskCreate: (payload: Task) => void;
+  column: ReduxColumn;
+  taskIds: number[];
 };
 
 const formSchema = z.object({
@@ -31,9 +34,14 @@ const formSchema = z.object({
   title: z.string(),
 });
 
-const CreateTaskPopover = ({ column, onTaskCreate }: props) => {
+const CreateTaskPopover = ({ column, taskIds }: props) => {
   const { storeTask } = useBoardApi();
   const { t } = useTranslation();
+  const lastTask = useAppSelector((state) =>
+    selectTaskById(state, column.tasks[taskIds.length - 1])
+  );
+  const dispatch = useAppDispatch();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,12 +53,15 @@ const CreateTaskPopover = ({ column, onTaskCreate }: props) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const response = await storeTask({
       ...values,
-      seq: column.tasks.length
-        ? column.tasks[column.tasks.length - 1].seq + SequenceIncrementor
+      seq: taskIds.length
+        ? lastTask.seq + SequenceIncrementor
         : SequenceIncrementor,
     });
 
-    onTaskCreate(response);
+    dispatch(addNewTask(response));
+    dispatch(
+      addColumnTask({ columnId: response.column_id, taskId: response.id })
+    );
   };
   return (
     <Popover>

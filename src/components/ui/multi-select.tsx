@@ -120,9 +120,21 @@ export const MultiSelect = React.forwardRef<
     ref
   ) => {
     const [selectedValues, setSelectedValues] =
-      React.useState<string[]>(defaultValue);
+      React.useState<string[]>([]);  
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
     const { t } = useTranslation();
+
+    const arraysAreEqual = (arr1: string[], arr2: string[]) => {
+      if (arr1.length !== arr2.length) return false;
+    
+      return arr1.every((element) => arr2.includes(element));
+    };
+
+    React.useEffect(() => {
+      if (!arraysAreEqual(defaultValue, selectedValues)) {
+        setSelectedValues(defaultValue);
+      }
+    }, [defaultValue]);
 
     const handleInputKeyDown = (
       event: React.KeyboardEvent<HTMLInputElement>

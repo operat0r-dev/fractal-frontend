@@ -1,15 +1,20 @@
 import apiClient from '@/apiClient';
 import { ApiResponse } from '@/types';
 import { AxiosResponse } from 'axios';
-import { BoardResponse } from '@/modules/board/types/Board';
-import type { TaskLabel, CreateTaskLabelRequest } from '../types/TaskLabel';
+import type {
+  CreateTaskLabelRequest,
+  AssignLabelsRequest,
+} from '../types/TaskLabel';
+import { ApiTask, ApiLabel } from '../types/apiTypes';
 
 const useLabelApi = () => {
   const storeLabel = async (payload: CreateTaskLabelRequest) => {
-    const response: AxiosResponse<ApiResponse<TaskLabel>> =
-      await apiClient.post('/label/create', payload);
+    const response: AxiosResponse<ApiResponse<ApiLabel>> = await apiClient.post(
+      '/label/create',
+      payload
+    );
 
-    const apiResponse: ApiResponse<TaskLabel> = response.data;
+    const apiResponse: ApiResponse<ApiLabel> = response.data;
 
     if (!apiResponse.success) {
       if (!apiResponse.message) {
@@ -26,10 +31,10 @@ const useLabelApi = () => {
     payload: Partial<CreateTaskLabelRequest>,
     id: string
   ) => {
-    const response: AxiosResponse<ApiResponse<TaskLabel>> =
+    const response: AxiosResponse<ApiResponse<ApiLabel>> =
       await apiClient.patch(`/label/update/${id}`, payload);
 
-    const apiResponse: ApiResponse<TaskLabel> = response.data;
+    const apiResponse: ApiResponse<ApiLabel> = response.data;
 
     if (!apiResponse.success) {
       if (!apiResponse.message) {
@@ -43,10 +48,10 @@ const useLabelApi = () => {
   };
 
   const index = async (id: string) => {
-    const response: AxiosResponse<ApiResponse<TaskLabel[]>> =
+    const response: AxiosResponse<ApiResponse<ApiLabel[]>> =
       await apiClient.get(`/label/${id}`);
 
-    const apiResponse: ApiResponse<TaskLabel[]> = response.data;
+    const apiResponse: ApiResponse<ApiLabel[]> = response.data;
 
     if (!apiResponse.success) {
       if (!apiResponse.message) {
@@ -59,11 +64,13 @@ const useLabelApi = () => {
     return apiResponse.data;
   };
 
-  const assign = async (id: string) => {
-    const response: AxiosResponse<ApiResponse<BoardResponse>> =
-      await apiClient.get(`/boards/${id}`);
+  const assign = async (id: string, payload: AssignLabelsRequest) => {
+    const response: AxiosResponse<ApiResponse<ApiTask>> = await apiClient.post(
+      `/label/${id}/assign`,
+      payload
+    );
 
-    const apiResponse: ApiResponse<BoardResponse> = response.data;
+    const apiResponse: ApiResponse<ApiTask> = response.data;
 
     if (!apiResponse.success) {
       if (!apiResponse.message) {

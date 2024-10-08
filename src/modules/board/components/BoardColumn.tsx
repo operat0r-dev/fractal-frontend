@@ -1,20 +1,18 @@
-import type { Column } from '../types/Board';
-
-import type { Task } from '../types/Board';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import ControlPanel from './BoardColumn/ControlPanel';
 import DroppableArea from './BoardColumn/DroppableArea';
+import { useAppSelector } from '@/hooks';
+import { selectColumnById } from '../slices/columnsSlice';
+import { memo } from 'react';
 
 type props = {
-  seq: number;
-  column: Column;
-  onTaskCreate: (payload: Task) => void;
-  onColorChange: (payload: Column) => void;
+  columnId: number;
 };
 
-const BoardColumn = ({ seq, column, onTaskCreate, onColorChange }: props) => {
+const BoardColumn = ({ columnId }: props) => {
   const [collapsed, setCollapsed] = useState<boolean>(false);
+  const column = useAppSelector((state) => selectColumnById(state, columnId));
 
   const toggleCollapse = () => {
     setCollapsed((prevCollapsed) => !prevCollapsed);
@@ -31,16 +29,14 @@ const BoardColumn = ({ seq, column, onTaskCreate, onColorChange }: props) => {
         collapsed={collapsed}
         onCollapsedChange={toggleCollapse}
         column={column}
-        onTaskCreate={onTaskCreate}
-        onColorChange={onColorChange}
+        taskIds={column.tasks}
       />
       <DroppableArea
-        seq={seq}
+        taskIds={column.tasks}
+        columnId={columnId}
         collapsed={collapsed}
-        column={column}
       />
     </div>
   );
 };
-
-export default BoardColumn;
+export default memo(BoardColumn);

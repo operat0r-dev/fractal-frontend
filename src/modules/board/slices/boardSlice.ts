@@ -1,15 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { Task } from '../types/Board';
-import { TaskLabel } from '../types/TaskLabel';
+import { ApiLabel } from '../types/apiTypes';
 
-type BoardState = {
-  currentTask: Task | undefined;
+export interface BoardState {
   sidebarOpen: boolean;
-  labels: TaskLabel[];
-};
+  labels: ApiLabel[];
+}
 
 const initialState: BoardState = {
-  currentTask: undefined,
   sidebarOpen: false,
   labels: [],
 };
@@ -18,18 +15,15 @@ export const boardSlice = createSlice({
   name: 'board',
   initialState,
   reducers: {
-    setCurrentTask: (state, action: PayloadAction<Task>) => {
-      state.currentTask = action.payload;
-    },
     setSidebarOpen: (state, action: PayloadAction<boolean>) => {
       state.sidebarOpen = action.payload;
     },
-    setLabels: (state, action: PayloadAction<TaskLabel[]>) => {
+    setLabels: (state, action: PayloadAction<ApiLabel[]>) => {
       state.labels = action.payload;
     },
   },
 });
 
-export const { setCurrentTask, setSidebarOpen, setLabels } = boardSlice.actions;
+export const { setSidebarOpen, setLabels } = boardSlice.actions;
 
 export default boardSlice.reducer;

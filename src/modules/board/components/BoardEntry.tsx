@@ -1,38 +1,43 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppDispatch } from '@/hooks';
-import { setSidebarOpen, setCurrentTask } from '../slices/boardSlice';
-import { Task } from '../types/Board';
-import TaskBadge from './TaskBadge';
+import { useAppSelector } from '@/hooks';
+import { setSidebarOpen } from '../slices/boardSlice';
+import { setCurrentTask, selectTaskById } from '../slices/tasksSlice';
+import { ReduxTask } from '../types/stateTypes';
+import { memo } from 'react';
+import TaskBadgeWrapper from './BoardColumn/TaskBadgeWrapper';
 
 type props = {
-  task: Task;
+  taskId: number;
 };
 
-export default function BoardEntry({ task }: props) {
+const BoardEntry = ({ taskId }: props) => {
   const dispatch = useAppDispatch();
+  const reduxTask = useAppSelector((state) => selectTaskById(state, taskId));
 
-  const showTaskDetails = (payload: Task) => {
-    dispatch(setCurrentTask(payload));
+  const showTaskDetails = (payload: ReduxTask) => {
+    dispatch(setCurrentTask(payload.id));
     dispatch(setSidebarOpen(true));
   };
 
   return (
     <Card
       className="w-full board-entry rounded"
-      onClick={() => showTaskDetails(task)}
+      onClick={() => showTaskDetails(reduxTask)}
     >
       <CardHeader>
-        <CardTitle>{task.title}</CardTitle>
+        <CardTitle>{reduxTask.title}</CardTitle>
       </CardHeader>
-      <CardContent>
-        {task.labels.map((label) => (
-          <TaskBadge
-            key={label.id}
-            name={label.name}
-            color={label.color}
+      <CardContent className="flex flex-wrap gap-2">
+        {reduxTask.labels.map((label) => (
+          <TaskBadgeWrapper
+            key={label}
+            labelId={label}
           />
         ))}
       </CardContent>
     </Card>
   );
-}
+};
+
+export default memo(BoardEntry);

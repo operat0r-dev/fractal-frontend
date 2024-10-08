@@ -21,17 +21,16 @@ import { useForm } from 'react-hook-form';
 import useBoardApi from '@/modules/board/api/api';
 
 import { cn } from '@/lib/utils';
-import type { Column, Task } from '../../types/Board';
 import { useTranslation } from 'react-i18next';
 import { predefinedColors } from '../../constants/PredefinedColors';
+import { ReduxColumn } from '../../types/stateTypes';
 import CreateTaskPopover from './CreateTaskPopover.';
 
 type props = {
   collapsed: boolean;
-  column: Column;
+  column: ReduxColumn;
+  taskIds: number[];
   onCollapsedChange: () => void;
-  onTaskCreate: (payload: Task) => void;
-  onColorChange: (payload: Column) => void;
 };
 
 const columnNameFormSchema = z.object({
@@ -42,8 +41,7 @@ const ControlPanel = ({
   collapsed,
   column,
   onCollapsedChange,
-  onTaskCreate,
-  onColorChange,
+  taskIds,
 }: props) => {
   const { updateColumn } = useBoardApi();
   const { t } = useTranslation();
@@ -65,9 +63,7 @@ const ControlPanel = ({
   };
 
   const handleColorChange = async (color: string) => {
-    const response = await updateColumn({ color }, String(column.id));
-
-    onColorChange(response);
+    await updateColumn({ color }, String(column.id));
   };
 
   return (
@@ -95,7 +91,7 @@ const ControlPanel = ({
             style={{ color: column.color }}
           >
             <Files className="h-4 w-4" />
-            <span className="font-medium text-sm">{column.tasks.length}</span>
+            <span className="font-medium text-sm">{taskIds.length}</span>
           </div>
           <p className="font-medium text-sm text-sideways">{column.name}</p>
         </div>
@@ -129,11 +125,11 @@ const ControlPanel = ({
           style={{ color: column.color }}
         >
           <Files className="h-4 w-4" />
-          <span className="font-medium text-sm">{column.tasks.length}</span>
+          <span className="font-medium text-sm">{taskIds.length}</span>
         </div>
         <CreateTaskPopover
           column={column}
-          onTaskCreate={onTaskCreate}
+          taskIds={taskIds}
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
