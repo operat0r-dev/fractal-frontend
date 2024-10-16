@@ -1,30 +1,30 @@
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
-  DropdownMenuItem,
   DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
+  DropdownMenuItem,
   DropdownMenuPortal,
+  DropdownMenuSub,
   DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Form, FormControl, FormItem, FormField } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { EllipsisVertical, Trash, ChevronRight, Files } from 'lucide-react';
-
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import useBoardApi from '@/modules/board/api/api';
-
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
+import useBoardApi from '@/modules/board/api/api';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ChevronRight, EllipsisVertical, Files, Trash } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { predefinedColors } from '../../constants/PredefinedColors';
 import { ReduxColumn } from '../../types/stateTypes';
 import CreateTaskPopover from './CreateTaskPopover.';
+import { useAppDispatch } from '@/store/hooks';
+import { columnUpdated } from '../../slices/columnsSlice';
 
 type props = {
   collapsed: boolean;
@@ -45,6 +45,7 @@ const ControlPanel = ({
 }: props) => {
   const { updateColumn } = useBoardApi();
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
 
   const columnNameForm = useForm<z.infer<typeof columnNameFormSchema>>({
     resolver: zodResolver(columnNameFormSchema),
@@ -59,11 +60,13 @@ const ControlPanel = ({
     if (!values.name.length) {
       columnNameForm.setValue('name', column.name);
     }
-    await updateColumn(values, String(column.id));
+    const response = await updateColumn(values, String(column.id));
+    dispatch(columnUpdated(response));
   };
 
   const handleColorChange = async (color: string) => {
-    await updateColumn({ color }, String(column.id));
+    const response = await updateColumn({ color }, String(column.id));
+    dispatch(columnUpdated(response));
   };
 
   return (

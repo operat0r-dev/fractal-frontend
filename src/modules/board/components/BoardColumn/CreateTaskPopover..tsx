@@ -20,7 +20,7 @@ import useBoardApi from '@/modules/board/api/api';
 import { SequenceIncrementor } from '@/modules/board/constants/SequenceConstants';
 import { useTranslation } from 'react-i18next';
 import { addNewTask, selectTaskById } from '../../slices/tasksSlice';
-import { useAppDispatch, useAppSelector } from '@/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { ReduxColumn } from '../../types/stateTypes';
 import { addColumnTask } from '../../slices/columnsSlice';
 

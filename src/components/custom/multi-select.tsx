@@ -1,17 +1,13 @@
-import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
-import {
-  X,
-  ChevronDown,
-} from "lucide-react";
+import * as React from 'react';
+import { X, ChevronDown } from 'lucide-react';
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from '@/components/ui/popover';
 import {
   Command,
   CommandEmpty,
@@ -19,40 +15,15 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
-import { useTranslation } from "react-i18next";
-import TaskBadge from "@/modules/board/components/TaskBadge";
-
-/**
- * Variants for the multi-select component to handle different styles.
- * Uses class-variance-authority (cva) to define different styles based on "variant" prop.
- */
-const multiSelectVariants = cva(
-  "m-1",
-  {
-    variants: {
-      variant: {
-        default:
-          "border-foreground/10 text-foreground bg-card hover:bg-card/80",
-        secondary:
-          "border-foreground/10 bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        inverted: "inverted",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-);
+} from '@/components/ui/command';
+import { useTranslation } from 'react-i18next';
+import TaskBadge from '@/components/custom/task-badge';
 
 /**
  * Props for MultiSelect component
  */
 interface MultiSelectProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof multiSelectVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /**
    * An array of option objects to be displayed in the multi-select component.
    * Each option object has a label, value, and an optional icon.
@@ -62,8 +33,8 @@ interface MultiSelectProps
     label: string;
     /** The unique value associated with the option. */
     value: string;
-    /** Color for bagde. */
-    color: string;
+    /** Color for the bagde. */
+    color?: string;
   }[];
 
   /**
@@ -89,16 +60,16 @@ interface MultiSelectProps
   modalPopover?: boolean;
 
   /**
-   * If true, renders the multi-select component as a child of another component.
-   * Optional, defaults to false.
-   */
-  asChild?: boolean;
-
-  /**
    * Additional class names to apply custom styles to the multi-select component.
    * Optional, can be used to add custom styles.
    */
   className?: string;
+
+  onCommandInput?: (value: string) => void;
+
+  shouldFilter?: boolean;
+
+  cacheOptions?: boolean;
 }
 
 export const MultiSelect = React.forwardRef<
@@ -107,41 +78,54 @@ export const MultiSelect = React.forwardRef<
 >(
   (
     {
+      onCommandInput,
+      shouldFilter,
+      cacheOptions,
       options,
       onValueChange,
-      variant,
       defaultValue = [],
-      placeholder = "Select options",
+      placeholder = 'Select options',
       modalPopover = false,
-      asChild = false,
       className,
       ...props
     },
     ref
   ) => {
-    const [selectedValues, setSelectedValues] =
-      React.useState<string[]>([]);  
-    const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
+    const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
+    const [isPopoverOpen, setIsPopoverOpen] = React.useState<boolean>(false);
+    const cachedOptions = React.useRef<typeof options>([]);
     const { t } = useTranslation();
 
     const arraysAreEqual = (arr1: string[], arr2: string[]) => {
       if (arr1.length !== arr2.length) return false;
-    
+
       return arr1.every((element) => arr2.includes(element));
     };
 
     React.useEffect(() => {
-      if (!arraysAreEqual(defaultValue, selectedValues)) {
+      if (shouldFilter && !arraysAreEqual(defaultValue, selectedValues)) {
         setSelectedValues(defaultValue);
       }
     }, [defaultValue]);
 
+    React.useEffect(() => {
+      if (!cacheOptions) return;
+
+      const allOptions = [...cachedOptions.current, ...options];
+      const uniqueOptions = allOptions.filter(
+        (option, index, self) =>
+          index === self.findIndex((o) => o.value === option.value)
+      );
+
+      cachedOptions.current = uniqueOptions;
+    }, [options]);
+
     const handleInputKeyDown = (
       event: React.KeyboardEvent<HTMLInputElement>
     ) => {
-      if (event.key === "Enter") {
+      if (event.key === 'Enter') {
         setIsPopoverOpen(true);
-      } else if (event.key === "Backspace" && !event.currentTarget.value) {
+      } else if (event.key === 'Backspace' && !event.currentTarget.value) {
         const newSelectedValues = [...selectedValues];
         newSelectedValues.pop();
         setSelectedValues(newSelectedValues);
@@ -173,7 +157,7 @@ export const MultiSelect = React.forwardRef<
             {...props}
             onClick={handleTogglePopover}
             className={cn(
-              "flex w-full p-1 rounded-md border min-h-10 h-auto items-center justify-between bg-inherit hover:bg-inherit",
+              'flex w-full p-1 rounded-md border min-h-10 h-auto items-center justify-between bg-inherit hover:bg-inherit',
               className
             )}
           >
@@ -181,8 +165,10 @@ export const MultiSelect = React.forwardRef<
               <div className="flex justify-between items-center w-full">
                 <div className="flex flex-wrap items-center">
                   {selectedValues.map((value) => {
-                    const option = options.find((o) => o.value === value);
-                    const color = option.color;
+                    const option = cacheOptions
+                      ? cachedOptions.current.find((o) => o.value === value)
+                      : options.find((o) => o.value === value);
+                    const color = option?.color;
                     return (
                       <TaskBadge
                         className="m-1"
@@ -193,7 +179,7 @@ export const MultiSelect = React.forwardRef<
                       >
                         <X
                           className="ml-2 h-4 w-4 cursor-pointer"
-                          onClick={() =>toggleOption(value)}
+                          onClick={() => toggleOption(value)}
                         />
                       </TaskBadge>
                     );
@@ -212,31 +198,37 @@ export const MultiSelect = React.forwardRef<
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="p-0"
+          className="p-0 w-[--radix-popover-trigger-width]"
           align="start"
           onEscapeKeyDown={() => setIsPopoverOpen(false)}
         >
-          <Command>
+          <Command shouldFilter={shouldFilter}>
             <CommandInput
+              onValueChange={(search) =>
+                onCommandInput ? onCommandInput(search) : null
+              }
               placeholder={t('general.search')}
               onKeyDown={handleInputKeyDown}
             />
             <CommandList className="w-full">
               <CommandEmpty>{t('general.noResults')}</CommandEmpty>
               <CommandGroup>
-                {options.filter((option) => !selectedValues.includes(option.value)).map((option) => 
-                  <CommandItem
-                    key={option.value}
-                    onSelect={() => toggleOption(option.value)}
-                    className="cursor-pointer"
-                  >
-                    <TaskBadge
-                      className="m-1"
-                      color={option.color}
-                      name={option.label}
-                    />
-                  </CommandItem>
-                )}
+                {options
+                  .filter((option) => !selectedValues.includes(option.value))
+                  .map((option) => (
+                    <CommandItem
+                      key={option.value}
+                      onSelect={() => toggleOption(option.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="cursor-pointer"
+                    >
+                      <TaskBadge
+                        className="m-1"
+                        color={option.color}
+                        name={option.label}
+                      />
+                    </CommandItem>
+                  ))}
               </CommandGroup>
             </CommandList>
           </Command>
@@ -246,4 +238,4 @@ export const MultiSelect = React.forwardRef<
   }
 );
 
-MultiSelect.displayName = "MultiSelect";
+MultiSelect.displayName = 'MultiSelect';

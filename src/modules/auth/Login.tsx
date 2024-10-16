@@ -1,5 +1,4 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import {
@@ -14,6 +13,7 @@ import { z } from 'zod';
 import { useAuthApi } from './api';
 import LoadingButton from '@/components/ui/loading-button';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Zła nazwa użytkownika' }),
@@ -24,6 +24,7 @@ export default function Login() {
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const { login } = useAuthApi();
+  const { t } = useTranslation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,11 +43,12 @@ export default function Login() {
         (workspace) => workspace.pivot.current
       );
 
-      navigate(`/workspace/${currentWorkspace[0].id}`);
+      navigate(`/workspace/${currentWorkspace[0].id}/boards`);
     } catch (error) {
       if (error instanceof Error) {
         form.setError('password', { message: 'Invalid email or password' });
       }
+      setLoading(false);
     }
   };
 
@@ -67,7 +69,7 @@ export default function Login() {
                     <Input
                       type="text"
                       {...field}
-                      placeholder="E-mail address"
+                      placeholder={t('login.form.email')}
                     />
                   </FormControl>
                 </FormItem>
@@ -82,7 +84,7 @@ export default function Login() {
                     <Input
                       type="password"
                       {...field}
-                      placeholder="Password"
+                      placeholder={t('login.form.password')}
                     />
                   </FormControl>
                   <FormMessage />
@@ -95,24 +97,23 @@ export default function Login() {
               type="submit"
               className="w-full"
             >
-              Login
+              {t('login.login')}
             </LoadingButton>
           </form>
         </Form>
-        <div className="my-4">
+        <div className="my-4 space-x-2">
           <NavLink
-            className="font-medium hover:underline"
+            className="hover:underline"
             to={'/forgot'}
           >
-            Forgot password?{' '}
+            {t('login.forgot')}
           </NavLink>
-          &#x2022;
+          <span>&#x2022;</span>
           <NavLink
-            className="font-medium hover:underline"
+            className="hover:underline"
             to={'/register'}
           >
-            {' '}
-            Create an account.
+            {t('login.createAccount')}
           </NavLink>
         </div>
       </div>

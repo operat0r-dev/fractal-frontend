@@ -4,8 +4,9 @@ import {
   EntityState,
   PayloadAction,
 } from '@reduxjs/toolkit';
-import { RootState } from '@/store';
+import { RootState } from '@/store/store';
 import { ReduxColumn } from '../types/stateTypes';
+import { ApiColumn } from '../types/apiTypes';
 
 const columnsAdapter = createEntityAdapter<ReduxColumn>({
   sortComparer: (a, b) => a.seq - b.seq,
@@ -18,7 +19,7 @@ const columnsSlice = createSlice({
   name: 'columns',
   initialState,
   reducers: {
-    columnUpdated: (state, action: PayloadAction<ReduxColumn>) => {
+    columnUpdated: (state, action: PayloadAction<ApiColumn>) => {
       const { id, color, name } = action.payload;
 
       const existingColumn = state.entities[id];

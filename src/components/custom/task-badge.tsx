@@ -2,7 +2,7 @@ import { Badge, BadgeProps } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 interface TaskBagdeProps extends BadgeProps {
-  color: string;
+  color?: string;
   name: string;
   icon?: React.ComponentType<{ className?: string }>;
 }
@@ -25,9 +25,9 @@ const TaskBadge = ({
       {...props}
       className={cn('font-medium text-xs rounded-full', className)}
       style={{
-        color,
-        borderColor: color,
-        backgroundColor: hslToHsla(color, 0.2),
+        color: color ?? '',
+        borderColor: color ?? '',
+        backgroundColor: color ? hslToHsla(color, 0.2) : '',
       }}
     >
       {name}

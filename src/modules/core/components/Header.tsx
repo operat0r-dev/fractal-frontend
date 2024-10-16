@@ -1,6 +1,6 @@
 import Account from './header/Account';
 import WorkspaceSelector from './header/WorkspaceSelector';
-import { useAppSelector } from '@/hooks';
+import { useAppSelector } from '@/store/hooks';
 
 const Header = () => {
   const user = useAppSelector((state) => state.authData.user);

@@ -9,7 +9,7 @@ import {
   ApiColumn,
   ApiTask,
 } from '../types/apiTypes';
-import { Board } from '@/modules/workspaces/types/types';
+import { ApiBoard } from '@/modules/workspaces/types/apiTypes';
 
 const useBoardApi = () => {
   const storeColumn = async (payload: CreateColumnRequest) => {
@@ -54,7 +54,7 @@ const useBoardApi = () => {
   const storeBoard = async (payload: CreateBoardRequest) => {
     const response = await apiClient.post('/board/store', payload);
 
-    const apiResponse: ApiResponse<Board> = response.data;
+    const apiResponse: ApiResponse<ApiBoard> = response.data;
 
     if (!apiResponse.success) {
       if (!apiResponse.message) {

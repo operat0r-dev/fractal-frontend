@@ -1,7 +1,7 @@
 import apiClient from '@/apiClient';
 import { AxiosResponse } from 'axios';
 import { ApiResponse } from '@/types';
-import { Workspace } from '../types/types';
+import { Workspace, User } from '../types/types';
 
 type CreateWorkspaceRequest = {
   name: string;
@@ -99,11 +99,50 @@ export function useWorkspacesApi() {
     return apiResponse.data;
   };
 
+  const getUsers = async (query: string) => {
+    const response: AxiosResponse<ApiResponse<User[]>> = await apiClient.get(
+      `/users/email/${query}`
+    );
+
+    const apiResponse: ApiResponse<User[]> = response.data;
+
+    if (!apiResponse.success) {
+      if (!apiResponse.message) {
+        throw new Error('wiadomosc z frontu');
+      }
+
+      throw new Error('wiadomosc z backu');
+    }
+
+    return apiResponse.data;
+  };
+
+  const inviteUsers = async (id: string, payload: { ids: number[] }) => {
+    const response: AxiosResponse<ApiResponse<[]>> = await apiClient.post(
+      `/workspace/${id}/invite`,
+      payload
+    );
+
+    const apiResponse: ApiResponse<[]> = response.data;
+
+    if (!apiResponse.success) {
+      if (!apiResponse.message) {
+        throw new Error('wiadomosc z frontu');
+      }
+
+      throw new Error('wiadomosc z backu');
+    }
+
+    return apiResponse.data;
+  };
+
   return {
     setUserWorkspace,
     createWorkspace,
     updateWorkspace,
     getUserWorkspaces,
     getWorkspace,
+    getUsers,
+    inviteUsers,
   };
 }

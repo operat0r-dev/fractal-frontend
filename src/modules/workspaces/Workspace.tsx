@@ -1,49 +1,52 @@
-import WorkspaceName from './components/WorkspaceName';
-import WorkspaceBoards from './components/WorkspaceBoards';
+import Banner from './components/Banner';
 import { Separator } from '@/components/ui/separator';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useWorkspacesApi } from './api/WorkspacesApi';
-import { useParams } from 'react-router-dom';
+import { Outlet, useParams } from 'react-router-dom';
 import type { Workspace } from './types/types';
-import { useTranslation } from 'react-i18next';
-import type { Board } from './types/types';
+import Navigation from './components/Navigation';
+import { useAppDispatch } from '@/store/hooks';
+import { setReduxBoards } from './slices/boardsSlice';
+import { setCurrentWorkspace } from './slices/workspacesSlice';
+import { setReduxUsers } from './slices/usersSlice';
 
 const Workspace = () => {
-  const [workspace, setWorkspace] = useState<Workspace | undefined>(undefined);
   const { getWorkspace } = useWorkspacesApi();
   const { id } = useParams();
-  const { t } = useTranslation();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const fetchWorkspace = async () => {
       if (!id) return;
 
       const response = await getWorkspace(id);
-      setWorkspace(response);
+
+      dispatch(
+        setCurrentWorkspace({
+          ...response,
+          users: response.users.map(({ id }) => id),
+          boards: response.boards.map(({ id }) => id),
+        })
+      );
+      dispatch(setReduxUsers(response.users));
+      dispatch(setReduxBoards(response.boards));
     };
 
     fetchWorkspace();
   }, [id]);
 
-  const handleBoardCreate = (board: Board) => {
-    setWorkspace((prevWorkspace) => {
-      if (!prevWorkspace) return;
-      return { ...prevWorkspace, boards: [...prevWorkspace.boards, board] };
-    });
-  };
-
   return (
-    <div className="container">
-      <div className="p-8">
-        <WorkspaceName workspace={workspace} />
-      </div>
-      <Separator />
-      <div className="p-8">
-        <h2 className="font-bold text-xl mb-4">{t('boards.title')}</h2>
-        <WorkspaceBoards
-          boards={workspace?.boards}
-          onBoardCreate={handleBoardCreate}
-        />
+    <div className="flex h-full">
+      <Navigation />
+
+      <div className="container">
+        <div className="p-8">
+          <Banner />
+        </div>
+        <Separator />
+        <div className="p-8">
+          <Outlet />
+        </div>
       </div>
     </div>
   );

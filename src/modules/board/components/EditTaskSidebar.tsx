@@ -1,28 +1,27 @@
-import { cn } from '@/lib/utils';
-import { useAppSelector } from '@/hooks';
-import { useAppDispatch } from '@/hooks';
+import { MultiSelect } from '@/components/custom/multi-select';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 import { setSidebarOpen } from '@/modules/board/slices/boardSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { X } from 'lucide-react';
-import { MultiSelect } from '@/components/ui/multi-select';
-import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import useLabelApi from '../api/TaskLabels';
-import { useToast } from '@/hooks/use-toast';
-import { setReduxLabels } from '../slices/labelsSlice';
-import { selectAllLabels } from '../slices/labelsSlice';
-import { updateTask, setCurrentTask } from '../slices/tasksSlice';
+import { selectAllLabels, setReduxLabels } from '../slices/labelsSlice';
+import { setCurrentTask, updateTask } from '../slices/tasksSlice';
 
 const EditTaskSidebar = () => {
   const { t } = useTranslation();
   const { id } = useParams();
   const { index, assign } = useLabelApi();
+  const { toast } = useToast();
+  const dispatch = useAppDispatch();
   const { sidebarOpen } = useAppSelector((state) => state.board);
   const labels = useAppSelector(selectAllLabels);
   const { currentTask } = useAppSelector((state) => state.tasks);
-  const dispatch = useAppDispatch();
-  const { toast } = useToast();
 
   useEffect(() => {
     const fetchLabels = async () => {
@@ -56,32 +55,37 @@ const EditTaskSidebar = () => {
     <div
       className={cn(
         sidebarOpen && 'translate-x-[-300px]',
-        'absolute top-0 -right-[300px] w-[300px] h-full bg-black duration-300 border-l bg-background p-2'
+        'absolute top-0 -right-[300px] w-[300px] h-full bg-black duration-300 border-l bg-background p-4'
       )}
     >
-      <Button
-        onClick={() => dispatch(setSidebarOpen(false))}
-        size="icon"
-        variant="ghost"
-      >
-        <X className="h-4 w-4" />
-      </Button>
-      <MultiSelect
-        options={labels.map((label) => {
-          return {
-            value: String(label.id),
-            color: label.color,
-            label: label.name,
-          };
-        })}
-        onValueChange={handleLabelChange}
-        defaultValue={labels
-          .filter((label) => currentTask?.labels.includes(label.id))
-          .map(({ id }) => String(id))
-          .flat()}
-        placeholder={t('label.choose')}
-        variant="inverted"
-      />
+      <div className="mb-4">
+        <Button
+          onClick={() => dispatch(setSidebarOpen(false))}
+          size="icon"
+          variant="ghost"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+      <div className="space-y-2">
+        <Label>{t('label.labels')}</Label>
+        <MultiSelect
+          options={labels.map((label) => {
+            return {
+              value: String(label.id),
+              color: label.color,
+              label: label.name,
+            };
+          })}
+          shouldFilter
+          onValueChange={handleLabelChange}
+          defaultValue={labels
+            .filter((label) => currentTask?.labels.includes(label.id))
+            .map(({ id }) => String(id))
+            .flat()}
+          placeholder={t('label.choose')}
+        />
+      </div>
     </div>
   );
 };

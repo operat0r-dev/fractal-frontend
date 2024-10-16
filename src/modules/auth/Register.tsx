@@ -14,6 +14,7 @@ import { useAuthApi } from './api';
 import { NavLink, useNavigate } from 'react-router-dom';
 import LoadingButton from '@/components/ui/loading-button';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const formSchema = z
   .object({
@@ -36,6 +37,7 @@ export default function Register() {
   const [loading, setLoading] = useState<boolean>(false);
   const { register, login } = useAuthApi();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -51,7 +53,7 @@ export default function Register() {
         (workspace) => workspace.pivot.current
       );
 
-      navigate(`/workspace/${currentWorkspace[0].id}`);
+      navigate(`/workspace/${currentWorkspace[0].id}/boards`);
     } catch {
       form.setError('email', {
         type: 'validate',
@@ -87,7 +89,7 @@ export default function Register() {
                     <Input
                       type="text"
                       {...field}
-                      placeholder="Username"
+                      placeholder={t('register.form.username')}
                     />
                   </FormControl>
                   <FormMessage />
@@ -103,7 +105,7 @@ export default function Register() {
                     <Input
                       type="text"
                       {...field}
-                      placeholder="E-mail address"
+                      placeholder={t('register.form.email')}
                     />
                   </FormControl>
                   <FormMessage />
@@ -119,10 +121,12 @@ export default function Register() {
                     <Input
                       type="password"
                       {...field}
-                      placeholder="Password"
+                      placeholder={t('register.form.password')}
                     />
                   </FormControl>
-                  <FormDescription>Min 8 characters</FormDescription>
+                  <FormDescription>
+                    {t('register.form.passwordHint')}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -136,7 +140,7 @@ export default function Register() {
                     <Input
                       type="password"
                       {...field}
-                      placeholder="Password confirmation"
+                      placeholder={t('register.form.passwordConfirmation')}
                     />
                   </FormControl>
                   <FormMessage />
@@ -148,15 +152,15 @@ export default function Register() {
               className="w-full"
               variant="default"
             >
-              Register
+              {t('register.register')}
             </LoadingButton>
           </form>
         </Form>
         <NavLink
           to={'/login'}
-          className="font-medium hover:underline"
+          className="mt-2 hover:underline"
         >
-          Back to login
+          {t('register.back')}
         </NavLink>
       </div>
     </div>

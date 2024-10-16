@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import ControlPanel from './BoardColumn/ControlPanel';
 import DroppableArea from './BoardColumn/DroppableArea';
-import { useAppSelector } from '@/hooks';
+import { useAppSelector } from '@/store/hooks';
 import { selectColumnById } from '../slices/columnsSlice';
 import { memo } from 'react';
 

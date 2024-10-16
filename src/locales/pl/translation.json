@@ -8,6 +8,26 @@
         "search": "Szukaj...",
         "noResults": "Brak wyników"
     },
+    "login": {
+        "login": "Zaloguj",
+        "forgot": "Zapomniałeś hasła?",
+        "createAccount": "Utwórz konto",
+        "form": {
+            "email": "Adres e-mail",
+            "password": "Hasło"
+        }
+    },
+    "register": {
+        "register": "Zarejestruj",
+        "back": "Wróć do logowania",
+        "form": {
+            "email": "Adres e-mail",
+            "password": "Hasło",
+            "passwordHint": "Min. 8 znaków",
+            "passwordConfirmation": "Powtórz hasło",
+            "username": "Nazwa użytkownika"
+        }
+    },
     "accountDropdown": {
         "myAccount": "Moje konto",
         "manageAccount": "Zarządzaj kontem",
@@ -23,13 +43,30 @@
             "success": "Utworzono obrzar roboczy",
             "error": "Podczas tworzenia obszaru roboczego wystąpił błąd"
         },
+        "edit": {
+            "title": "Edytuj przestrzeń roboczą",
+            "description": "Tutaj możesz zmienić nazwę oraz opis przestrzeni roboczej",
+            "success": "Pomyślnie edytowano przestrzeń roboczą",
+            "error": "Podczas edycji przestrzeni roboczej wystąpił błąd"
+        },
+        "addMembers": {
+            "title": "Dodaj członków",
+            "description": "Dodane osoby będą miały dostęp do tablic w tym obszarze roboczym",
+            "success": "Pomyślnie dodano użytkowników do obszaru roboczego",
+            "error": "Podczas dodawania użytkowników do obszaru roboczego wystąpił błąd"
+        },
+        "navigation": {
+            "boards": "Tablice",
+            "members": "Współpracownicy"
+        },
         "error": {
             "getMany": "Podczas pobierania obszarów roboczych wystąpił błąd",
             "setCurrent": "Podczas zmiany obszaru roboczego wystąpił błąd",
             "changeName": "Podczas edycji nazwy obszaru roboczego wystąpił błąd"
         },
         "form": {
-            "name": "Nazwa"
+            "name": "Nazwa",
+            "description": "Opis"
         }
     },
     "boards": {
@@ -41,6 +78,9 @@
         "form": {
             "name": "Nazwa",
             "workspace": "Obszar roboczy"
+        },
+        "error": {
+            "createColumn": "Podczas dodwania kolumny wystapił błąd"
         }
         
     },
@@ -58,6 +98,7 @@
         }
     },
     "label": {
+        "labels": "Etykiety",
         "create": "Dodaj etykietę",
         "preview": "Podgląd",
         "choose": "Wybierz etykiety",
