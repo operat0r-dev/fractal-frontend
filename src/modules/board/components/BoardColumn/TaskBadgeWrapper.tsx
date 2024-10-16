@@ -1,6 +1,6 @@
-import { useAppSelector } from '@/hooks';
+import { useAppSelector } from '@/store/hooks';
 import { selectLabelById } from '../../slices/labelsSlice';
-import TaskBadge from '../TaskBadge';
+import TaskBadge from '../../../../components/custom/task-badge';
 import { memo } from 'react';
 
 type TaskBadgeWrapperProps = {

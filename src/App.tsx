@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from './hooks';
+import { useAppDispatch, useAppSelector } from './store/hooks';
 import { setTokenData, setUser } from './modules/auth/slices/auth';
 import { getLocalStorageItem } from './modules/core/helpers/LocalStorage';
 import { JWTTokenResponse, User } from './modules/auth/interfaces/types';
@@ -27,7 +27,7 @@ const App = () => {
   }
 
   return (
-    <div className="w-[100vw] h-full">
+    <div className="w-full h-full">
       <Outlet />
       <Toaster />
     </div>

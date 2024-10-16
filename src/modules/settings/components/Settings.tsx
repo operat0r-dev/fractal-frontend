@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { z } from 'zod';
-import { useAppSelector } from '@/hooks';
+import { useAppSelector } from '@/store/hooks';
 import { Button } from '@/components/ui/button';
 import { useSettingsApi } from '@/modules/settings/SettingsApi';
 

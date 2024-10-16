@@ -1,9 +1,9 @@
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { store } from './store.ts';
+import { store } from './store/store.ts';
 import { router } from './router';
-import { ThemeProvider } from './modules/ThemeProvider.tsx';
+import { ThemeProvider } from './theme/ThemeProvider.tsx';
 import './globals.css';
 import './i18n';
 

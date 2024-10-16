@@ -7,24 +7,26 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { useAppSelector, useAppDispatch } from '@/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { useEffect } from 'react';
 import {
-  setWorkspaces,
-  currentWorkspace,
-} from '@/modules/workspaces/slices/workspaces';
+  setReduxWorkspaces,
+  selectCurrentWorkspace,
+  selectAllWorkspaces,
+} from '@/modules/workspaces/slices/workspacesSlice';
 import { useWorkspacesApi } from '@/modules/workspaces/api/WorkspacesApi';
 import { ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { switchWorkspaces } from '@/modules/workspaces/slices/workspacesSlice';
 
 const WorkspaceSelector = () => {
-  const { workspaces } = useAppSelector((state) => state.workspaces);
   const { getUserWorkspaces, setUserWorkspace } = useWorkspacesApi();
   const { toast } = useToast();
   const { t } = useTranslation();
-  const current = useAppSelector(currentWorkspace);
+  const workspaces = useAppSelector(selectAllWorkspaces);
+  const current = useAppSelector(selectCurrentWorkspace);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -35,7 +37,7 @@ const WorkspaceSelector = () => {
       if (isMounted) {
         try {
           const response = await getUserWorkspaces();
-          dispatch(setWorkspaces(response));
+          dispatch(setReduxWorkspaces(response));
         } catch (error) {
           if (error instanceof Error) {
             toast({
@@ -56,18 +58,18 @@ const WorkspaceSelector = () => {
 
   const setCurrentWorkspace = async (id: number) => {
     try {
+      if (!current) return;
       await setUserWorkspace(id);
       dispatch(
-        setWorkspaces(
-          workspaces.map((workspace) => ({
-            ...workspace,
-            current: workspace.id === id,
-          }))
-        )
+        switchWorkspaces({
+          prevWorkspaceId: current.id,
+          currWorkspaceId: id,
+        })
       );
-      navigate(`/workspace/${id}`);
+      navigate(`/workspace/${id}/boards`);
     } catch (error) {
       if (error instanceof Error) {
+        console.log(error);
         toast({
           description: t('workspace.error.setCurrent'),
           variant: 'destructive',

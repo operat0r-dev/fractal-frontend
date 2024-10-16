@@ -7,7 +7,7 @@ import {
 } from './interfaces/types';
 import { AxiosResponse } from 'axios';
 import { ApiResponse } from '@/types';
-import { useAppDispatch } from '@/hooks';
+import { useAppDispatch } from '@/store/hooks';
 import { setTokenData, setUser } from './slices/auth';
 
 export function useAuthApi() {

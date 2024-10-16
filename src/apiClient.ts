@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { store } from './store';
+import { store } from './store/store';
 import { setTokenData, logout } from './modules/auth/slices/auth';
 import { ApiResponse } from './types';
 import { JWTTokenResponse } from './modules/auth/interfaces/types';

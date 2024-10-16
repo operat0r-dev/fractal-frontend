@@ -5,7 +5,7 @@ import {
   EntityState,
   PayloadAction,
 } from '@reduxjs/toolkit';
-import { RootState } from '@/store';
+import { RootState } from '@/store/store';
 import { ReduxTask } from '../types/stateTypes';
 import { ApiTask } from '../types/apiTypes';
 

@@ -2,7 +2,7 @@ import apiClient from '@/apiClient';
 import { User } from '@/modules/auth/interfaces/types';
 import { AxiosResponse } from 'axios';
 import { ApiResponse } from '@/types';
-import { useAppDispatch } from '@/hooks';
+import { useAppDispatch } from '@/store/hooks';
 import { setUser } from '@/modules/auth/slices/auth';
 
 export function useSettingsApi() {

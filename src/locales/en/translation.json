@@ -6,7 +6,9 @@
         "cancel": "Cancel",
         "close": "Close",
         "search": "Search...",
-        "noResults": "No results"
+        "noResults": "No results",
+        "edit": "Edytuj",
+        "delete": "Usuń"
     },
     "accountDropdown": {
         "myAccount": "My account",
@@ -21,6 +23,12 @@
             "title": "Add workspace",
             "description": "Here you can create your brand new workspace.",
             "success": "Workspace created successfully"
+        },
+        "addMembers": {
+            "title": "Add members",
+            "description": "Added members will have access to your boards within this workspace",
+            "success": "Workspace members added successfully",
+            "error": "An error occured during adding members to workspace"
         },
         "error": {
             "getMany": "An error occured during loading workspaces",

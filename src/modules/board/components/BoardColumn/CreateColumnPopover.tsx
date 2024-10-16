@@ -22,7 +22,7 @@ import useBoardApi from '@/modules/board/api/api';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useAppDispatch } from '@/hooks';
+import { useAppDispatch } from '@/store/hooks';
 import { addNewColumn } from '../../slices/columnsSlice';
 
 type props = {

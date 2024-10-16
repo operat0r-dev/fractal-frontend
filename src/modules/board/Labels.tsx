@@ -1,29 +1,32 @@
-import useLabelApi from './api/TaskLabels';
-import { useEffect, useState } from 'react';
-import { useAppSelector, useAppDispatch } from '@/hooks';
-import { useParams } from 'react-router-dom';
-import { setLabels } from './slices/boardSlice';
+import { DataTable } from '@/components/custom/data-table';
 import { Button } from '@/components/ui/button';
-import { useTranslation } from 'react-i18next';
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
-import { Form, FormField, FormControl, FormItem } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { RadioGroup } from '@/components/ui/radio-group';
-import { RadioGroupItem } from '@radix-ui/react-radio-group';
 import { Label } from '@/components/ui/label';
-import { predefinedColors } from './constants/PredefinedColors';
-import type { TaskLabel } from '@/modules/board/types/TaskLabel';
-import TaskBadge from './components/TaskBadge';
+import { RadioGroup } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { RadioGroupItem } from '@radix-ui/react-radio-group';
+import { ColumnDef } from '@tanstack/react-table';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+import { z } from 'zod';
+import TaskBadge from '../../components/custom/task-badge';
+import { ReduxLabel } from '../workspaces/types/stateTypes';
+import useLabelApi from './api/TaskLabels';
+import { predefinedColors } from './constants/PredefinedColors';
+import { setLabels } from './slices/boardSlice';
 
 const formSchema = z.object({
   name: z.string(),
@@ -129,7 +132,7 @@ const Labels = () => {
     }
   };
 
-  const openDialog = (payload: TaskLabel) => {
+  const openDialog = (payload: ReduxLabel) => {
     form.reset({
       ...payload,
       label_id: payload.id,
@@ -150,20 +153,51 @@ const Labels = () => {
     }
   };
 
+  const columns: ColumnDef<ReduxLabel>[] = [
+    {
+      accessorKey: 'name',
+      header: 'Etykieta',
+      cell: ({ row }) => {
+        return (
+          <TaskBadge
+            color={row.original.color}
+            name={row.original.name}
+          />
+        );
+      },
+    },
+    {
+      id: 'actions',
+      header: 'Akcje',
+      cell: ({ row }) => {
+        return (
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => openDialog(row.original)}
+          >
+            {t('general.edit')}
+          </Button>
+        );
+      },
+    },
+  ];
+
   return (
     <div className="container p-8">
+      <h1 className="font-bold text-xl mb-4">{t('label.labels')}</h1>
       <Dialog
         open={open}
         onOpenChange={onOpenChange}
       >
         <DialogTrigger asChild>
-          <Button>{t('label.create')}</Button>
+          <Button variant="secondary">{t('label.create')}</Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader className="space-y-4">
             <DialogTitle>{t('label.create')}</DialogTitle>
             <TaskBadge
-              className="w-min"
+              className="w-min whitespace-nowrap"
               color={color}
               name={name.length ? name : t('label.preview')}
             />
@@ -218,65 +252,27 @@ const Labels = () => {
                   </FormItem>
                 )}
               />
-              <Button onClick={() => form.handleSubmit(onSubmit)}>
-                {t('general.submit')}
-              </Button>
             </form>
           </Form>
+          <DialogFooter>
+            <Button
+              onClick={() => setOpen(false)}
+              variant="secondary"
+            >
+              {t('general.cancel')}
+            </Button>
+            <Button onClick={form.handleSubmit(onSubmit)}>
+              {t('general.submit')}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <div>
-        <table className="w-full border border-collapse">
-          <tr className="border">
-            <th
-              className="border p-2"
-              align="left"
-            >
-              Etykieta
-            </th>
-            <th
-              className="border p-2"
-              align="right"
-            >
-              Akcje
-            </th>
-          </tr>
-
-          {labels.map((label) => (
-            <tr
-              key={label.id}
-              className="w-full border"
-            >
-              <td className="border p-2">
-                <TaskBadge
-                  color={label.color}
-                  name={label.name}
-                />
-              </td>
-              <td
-                align="right"
-                className="border p-2"
-              >
-                <div className="space-x-2">
-                  <Button
-                    size="sm"
-                    className="rounded-s"
-                    onClick={() => openDialog(label)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="rounded-s"
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </table>
+      <div className="mt-4">
+        <DataTable
+          columns={columns}
+          data={labels}
+        />
       </div>
     </div>
   );

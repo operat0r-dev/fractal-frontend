@@ -8,6 +8,8 @@ import Settings from './modules/settings/components/Settings.tsx';
 import Workspace from './modules/workspaces/Workspace.tsx';
 import Board from './modules/board/Board.tsx';
 import Labels from './modules/board/Labels.tsx';
+import Boards from './modules/workspaces/components/Boards.tsx';
+import Users from './modules/workspaces/components/Users.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +37,16 @@ export const router = createBrowserRouter([
               {
                 path: '/workspace/:id',
                 element: <Workspace />,
+                children: [
+                  {
+                    path: '/workspace/:id/boards',
+                    element: <Boards />,
+                  },
+                  {
+                    path: '/workspace/:id/users',
+                    element: <Users />,
+                  },
+                ],
               },
             ],
           },

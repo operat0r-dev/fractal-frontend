@@ -7,7 +7,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { useAppDispatch, useAppSelector } from '@/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout } from '@/modules/auth/slices/auth';
 import { useNavigate } from 'react-router-dom';
 import { User } from '@/modules/auth/interfaces/types';
@@ -29,9 +29,10 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/hooks/use-toast';
-import { setWorkspaces } from '@/modules/workspaces/slices/workspaces';
+import { setReduxWorkspaces } from '@/modules/workspaces/slices/workspacesSlice';
 import { Form, FormField, FormItem, FormControl } from '@/components/ui/form';
 import { useTranslation } from 'react-i18next';
+import { selectAllWorkspaces } from '@/modules/workspaces/slices/workspacesSlice';
 
 type AccountProps = {
   user: User | null;
@@ -43,7 +44,7 @@ const formSchema = z.object({
 
 const Account = (props: AccountProps) => {
   const [open, setOpen] = useState(false);
-  const { workspaces } = useAppSelector((state) => state.workspaces);
+  const workspaces = useAppSelector(selectAllWorkspaces);
   const { createWorkspace } = useWorkspacesApi();
   const { toast } = useToast();
   const { t } = useTranslation();
@@ -60,7 +61,7 @@ const Account = (props: AccountProps) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await createWorkspace(values);
-      dispatch(setWorkspaces([response, ...workspaces]));
+      dispatch(setReduxWorkspaces([response, ...workspaces]));
 
       setOpen(false);
 

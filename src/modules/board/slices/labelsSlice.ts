@@ -4,7 +4,7 @@ import {
   EntityState,
   PayloadAction,
 } from '@reduxjs/toolkit';
-import { RootState } from '@/store';
+import { RootState } from '@/store/store';
 import { ApiLabel } from '../types/apiTypes';
 
 const taskLabelsAdapter = createEntityAdapter<ApiLabel>({

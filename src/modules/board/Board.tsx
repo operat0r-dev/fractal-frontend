@@ -1,35 +1,40 @@
-import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
-import { useParams } from 'react-router-dom';
+import { Tag } from 'lucide-react';
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link, useParams } from 'react-router-dom';
 import useBoardApi from './api/api';
 import BoardColumn from './components/BoardColumn';
 import CreateColumnPopover from './components/BoardColumn/CreateColumnPopover';
 import EditTaskSidebar from './components/EditTaskSidebar';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Tag } from 'lucide-react';
-import { useAppDispatch } from '@/hooks';
+import { SequenceIncrementor } from './constants/SequenceConstants';
 import {
+  resetColumns,
+  selectColumnById,
+  selectColumnIds,
   setReduxColumns,
   updateColumnsTasks,
-  resetColumns,
 } from './slices/columnsSlice';
-import { useAppSelector } from '@/hooks';
-import { selectColumnIds } from './slices/columnsSlice';
 import {
+  resetTasks,
   selectAllTasksOrderedBySeq,
   setReduxTasks,
   taskUpdated,
-  resetTasks,
 } from './slices/tasksSlice';
-import { reorder, move } from './utils/boardUtils';
+import { move, reorder } from './utils/boardUtils';
 
 const Board = () => {
   const { id } = useParams<string>();
+  const { t } = useTranslation();
   const { index, updateTask } = useBoardApi();
   const reduxColumns = useAppSelector(selectColumnIds);
   const reduxTasks = useAppSelector(selectAllTasksOrderedBySeq);
   const dispatch = useAppDispatch();
+  const lastSeq = useAppSelector((state) =>
+    selectColumnById(state, reduxColumns[reduxColumns.length - 1])
+  )?.seq;
 
   useEffect(() => {
     let isMounted = true;
@@ -157,17 +162,20 @@ const Board = () => {
   };
 
   return (
-    <div className="relative h-full w-full overflow-hidden p-10">
-      <Link to={`/board/${id}/labels`}>
-        <Button
-          size="sm"
-          variant="outline"
-        >
-          <Tag className="h-4 w-4 mr-2" />
-          Labels
-        </Button>
-      </Link>
-      <div className="flex gap-4 h-full w-full overflow-auto">
+    <div className="relative flex flex-col h-full w-full overflow-hidden p-10">
+      <div className="flex justify-end mb-4">
+        <Link to={`/board/${id}/labels`}>
+          <Button
+            size="sm"
+            variant="outline"
+            className="ml-auto"
+          >
+            <Tag className="h-4 w-4 mr-2" />
+            {t('label.labels')}
+          </Button>
+        </Link>
+      </div>
+      <div className="flex flex-grow gap-4 w-full overflow-auto">
         <DragDropContext onDragEnd={onDragEnd}>
           <div className="flex h-full gap-4">
             {reduxColumns.map((id) => (
@@ -179,7 +187,7 @@ const Board = () => {
           </div>
         </DragDropContext>
 
-        <CreateColumnPopover newColumnSeq={reduxColumns.length + 1} />
+        <CreateColumnPopover newColumnSeq={lastSeq + SequenceIncrementor} />
       </div>
 
       <EditTaskSidebar />
