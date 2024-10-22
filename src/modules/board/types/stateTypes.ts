@@ -13,4 +13,5 @@ export interface ReduxTask {
   title: string;
   seq: number;
   labels: number[];
+  user_id: number | null;
 }

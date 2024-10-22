@@ -10,6 +10,7 @@ import Board from './modules/board/Board.tsx';
 import Labels from './modules/board/Labels.tsx';
 import Boards from './modules/workspaces/components/Boards.tsx';
 import Users from './modules/workspaces/components/Users.tsx';
+import Task from './modules/tasks/components/Task.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
                     element: <Users />,
                   },
                 ],
+              },
+              {
+                path: '/task/:id',
+                element: <Task />,
               },
             ],
           },

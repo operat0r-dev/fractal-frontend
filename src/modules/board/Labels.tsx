@@ -8,7 +8,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormLabel,
+  FormField,
+  FormItem,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup } from '@/components/ui/radio-group';
@@ -212,11 +218,11 @@ const Labels = () => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
+                    <FormLabel>{t('label.form.name')} *</FormLabel>
                     <FormControl>
                       <Input
                         type="text"
                         {...field}
-                        placeholder={t('label.form.name')}
                       />
                     </FormControl>
                   </FormItem>
@@ -227,11 +233,12 @@ const Labels = () => {
                 name="color"
                 render={({ field }) => (
                   <FormItem>
+                    <FormLabel>Kolor *</FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        className="grid grid-cols-6 gap-2"
+                        className="grid grid-cols-6 place-items-center"
                       >
                         {predefinedColors.map((color, index) => (
                           <div key={index}>
@@ -242,7 +249,7 @@ const Labels = () => {
                             />
                             <Label
                               htmlFor={`color-${index}`}
-                              className="flex h-4 w-4 rounded-md border-2 p-4 peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                              className="cursor-pointer flex h-8 w-16 rounded-md border-2 peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                               style={{ backgroundColor: color.hsl }}
                             />
                           </div>

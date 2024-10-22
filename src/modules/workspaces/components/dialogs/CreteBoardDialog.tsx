@@ -1,20 +1,4 @@
-import { Input } from '@/components/ui/input';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from '@/components/ui/form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectValue,
-  SelectItem,
-} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -24,35 +8,60 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import LoadingButton from '@/components/ui/loading-button';
-import { useForm } from 'react-hook-form';
 import {
-  selectCurrentWorkspace,
-  selectAllWorkspaces,
-} from '../../slices/workspacesSlice';
-import { useAppSelector } from '@/store/hooks';
-import { useAppDispatch } from '@/store/hooks';
-import useBoardApi from '@/modules/board/api/api';
-
-const formSchema = z.object({
-  workspace_id: z.number(),
-  name: z.string(),
-});
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import LoadingButton from '@/components/ui/loading-button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import useBoardApi from '@/modules/board/api/boardApi';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { addReduxBoard } from '../../slices/boardsSlice';
+import {
+  selectAllWorkspaces,
+  selectCurrentWorkspace,
+} from '../../slices/workspacesSlice';
+import { useHandleError } from '../useError';
 
 const CreateBoardDialog = () => {
   const [open, setOpen] = useState<boolean>();
   const [loading, setLoading] = useState<boolean>(false);
   const { t } = useTranslation();
   const { storeBoard } = useBoardApi();
-  const { toast } = useToast();
   const workspace = useAppSelector(selectCurrentWorkspace);
   const workspaces = useAppSelector(selectAllWorkspaces);
   const dispatch = useAppDispatch();
+
+  const formSchema = z
+    .object({
+      workspace_id: z.number(),
+      name: z.string({ message: t('form.required') }),
+    })
+    .superRefine(({ name }, ctx) => {
+      if (!name.length) {
+        ctx.addIssue({
+          code: 'custom',
+          message: t('form.required'),
+          path: ['name'],
+        });
+      }
+    });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,26 +71,26 @@ const CreateBoardDialog = () => {
     },
   });
 
+  const { setError } = form;
+  const { handleError } = useHandleError();
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setLoading(true);
       const response = await storeBoard(values);
       dispatch(addReduxBoard(response));
-      setLoading(false);
       setOpen(false);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast({
-          variant: 'destructive',
-          description: t('board.error.createColumn'),
-        });
-      }
+    } catch (error) {
+      handleError<z.infer<typeof formSchema>>(error, {
+        formErrorHandler: setError,
+      });
+    } finally {
       setLoading(false);
     }
   };
 
   const handleOpen = () => {
-    form.reset({ workspace_id: workspace?.id });
+    // form.reset({ workspace_id: workspace?.id });
   };
 
   return (
@@ -120,6 +129,7 @@ const CreateBoardDialog = () => {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -149,6 +159,7 @@ const CreateBoardDialog = () => {
                       </SelectContent>
                     </Select>
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />

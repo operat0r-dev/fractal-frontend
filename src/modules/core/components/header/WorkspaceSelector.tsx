@@ -14,15 +14,17 @@ import {
   selectCurrentWorkspace,
   selectAllWorkspaces,
 } from '@/modules/workspaces/slices/workspacesSlice';
-import { useWorkspacesApi } from '@/modules/workspaces/api/WorkspacesApi';
+import { useWorkspacesApi } from '@/modules/workspaces/api/workspacesApi';
 import { ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { switchWorkspaces } from '@/modules/workspaces/slices/workspacesSlice';
+import useUsersApi from '@/modules/users/api/usersApi';
 
 const WorkspaceSelector = () => {
-  const { getUserWorkspaces, setUserWorkspace } = useWorkspacesApi();
+  const { getUserWorkspaces } = useWorkspacesApi();
+  const { setUserWorkspace } = useUsersApi();
   const { toast } = useToast();
   const { t } = useTranslation();
   const workspaces = useAppSelector(selectAllWorkspaces);

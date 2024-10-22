@@ -6,7 +6,8 @@
         "cancel": "Anuluj",
         "close": "Zamknij",
         "search": "Szukaj...",
-        "noResults": "Brak wyników"
+        "noResults": "Brak wyników",
+        "validationException": "Formularz zawiera nieprawodłowo wprowadzone dane"
     },
     "login": {
         "login": "Zaloguj",
@@ -109,5 +110,8 @@
         "error": {
             "assign": "Podczas przypisywania etykiety wystąpił błąd"
         }
+    },
+    "form": {
+        "required": "To pole jest wymagane"
     }
 }

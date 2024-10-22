@@ -7,16 +7,13 @@ import CreateBoardDialog from './dialogs/CreteBoardDialog';
 
 const Boards = () => {
   const { t } = useTranslation();
-
   const boards = useAppSelector(selectAllBoards);
 
-  if (!boards) {
+  if (!boards.length) {
     return (
       <>
         <h2 className="font-bold text-xl mb-4">{t('boards.title')}</h2>
         <div className="grid grid-cols-4 justify-evenly gap-4">
-          <Skeleton className="h-[100px]" />
-          <Skeleton className="h-[100px]" />
           <Skeleton className="h-[100px]" />
           <Skeleton className="h-[100px]" />
         </div>
@@ -30,9 +27,10 @@ const Boards = () => {
       <div className="grid grid-cols-4 justify-evenly gap-4">
         {boards.map((board) => (
           <Link
-            className="border rounded-md p-4 font-bold w-full h-[100px] bg-destructive"
+            className="border text-black rounded-md p-4 font-bold w-full h-[100px]"
             key={board.id}
             to={`/board/${board.id}`}
+            style={{ backgroundColor: board.color }}
           >
             {board.name}
           </Link>

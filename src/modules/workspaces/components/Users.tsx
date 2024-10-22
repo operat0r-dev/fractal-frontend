@@ -1,6 +1,6 @@
 import AddUsersDialog from './dialogs/AddUsersDialog';
 import { useAppSelector } from '@/store/hooks';
-import { selectAllUsers } from '../slices/usersSlice';
+import { selectAllUsers } from '../../users/slices/usersSlice';
 import { DataTable } from '@/components/custom/data-table';
 import { columns } from './dataTable/Columns';
 

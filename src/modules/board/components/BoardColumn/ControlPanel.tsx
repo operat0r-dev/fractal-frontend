@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
-import useBoardApi from '@/modules/board/api/api';
+import useBoardApi from '@/modules/board/api/boardApi';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, EllipsisVertical, Files, Trash } from 'lucide-react';
 import { useForm } from 'react-hook-form';

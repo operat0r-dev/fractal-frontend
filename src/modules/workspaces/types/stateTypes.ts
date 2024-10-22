@@ -12,13 +12,7 @@ export interface ReduxBoard {
   name: string;
   description?: string;
   workspace_id: number;
-}
-
-export interface ReduxUser {
-  id: number;
-  name: string;
-  email: string;
-  workspaces: number[];
+  color: string;
 }
 
 export interface ReduxLabel {

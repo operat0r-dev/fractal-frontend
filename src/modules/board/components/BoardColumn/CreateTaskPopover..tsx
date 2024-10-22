@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import useBoardApi from '@/modules/board/api/api';
+import useBoardApi from '@/modules/board/api/boardApi';
 import { SequenceIncrementor } from '@/modules/board/constants/SequenceConstants';
 import { useTranslation } from 'react-i18next';
 import { addNewTask, selectTaskById } from '../../slices/tasksSlice';

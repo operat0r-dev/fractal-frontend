@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import {
   FormField,
   FormItem,
+  FormMessage,
   FormLabel,
   FormControl,
   Form,
@@ -18,22 +19,17 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { predefinedColors } from '../../constants/PredefinedColors';
-import useBoardApi from '@/modules/board/api/api';
+import useBoardApi from '@/modules/board/api/boardApi';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch } from '@/store/hooks';
 import { addNewColumn } from '../../slices/columnsSlice';
+import { useHandleError } from '@/modules/workspaces/components/useError';
 
 type props = {
   newColumnSeq: number;
 };
-
-const formSchema = z.object({
-  board_id: z.number(),
-  name: z.string(),
-  color: z.string(),
-});
 
 const CreateColumnPopover = ({ newColumnSeq }: props) => {
   const { storeColumn } = useBoardApi();
@@ -41,6 +37,23 @@ const CreateColumnPopover = ({ newColumnSeq }: props) => {
   const { id } = useParams<string>();
   const [open, setOpen] = useState<boolean>(false);
   const dispatch = useAppDispatch();
+  const { handleError } = useHandleError();
+
+  const formSchema = z
+    .object({
+      board_id: z.number(),
+      name: z.string({ message: t('form.required') }),
+      color: z.string(),
+    })
+    .superRefine(({ name }, ctx) => {
+      if (!name.length) {
+        ctx.addIssue({
+          code: 'custom',
+          message: t('form.required'),
+          path: ['name'],
+        });
+      }
+    });
 
   const defaultValues = {
     board_id: Number(id),
@@ -53,11 +66,19 @@ const CreateColumnPopover = ({ newColumnSeq }: props) => {
     defaultValues,
   });
 
+  const { setError } = form;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const response = await storeColumn({ ...values, seq: newColumnSeq });
-    dispatch(addNewColumn(response));
-    setOpen(false);
-    form.reset(defaultValues);
+    try {
+      const response = await storeColumn({ ...values, seq: newColumnSeq });
+      dispatch(addNewColumn(response));
+      setOpen(false);
+      form.reset(defaultValues);
+    } catch (error) {
+      handleError(error, {
+        formErrorHandler: setError,
+      });
+    }
   };
 
   return (
@@ -88,6 +109,7 @@ const CreateColumnPopover = ({ newColumnSeq }: props) => {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
