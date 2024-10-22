@@ -5,7 +5,7 @@ import { Tag } from 'lucide-react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
-import useBoardApi from './api/api';
+import useBoardApi from './api/boardApi';
 import BoardColumn from './components/BoardColumn';
 import CreateColumnPopover from './components/BoardColumn/CreateColumnPopover';
 import EditTaskSidebar from './components/EditTaskSidebar';
@@ -24,11 +24,16 @@ import {
   taskUpdated,
 } from './slices/tasksSlice';
 import { move, reorder } from './utils/boardUtils';
+import { setSidebarOpen } from './slices/boardSlice';
+import { useWorkspacesApi } from '../workspaces/api/workspacesApi';
+import { setReduxUsers } from '../users/slices/usersSlice';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Board = () => {
   const { id } = useParams<string>();
   const { t } = useTranslation();
   const { index, updateTask } = useBoardApi();
+  const { getWorkspaceUsers } = useWorkspacesApi();
   const reduxColumns = useAppSelector(selectColumnIds);
   const reduxTasks = useAppSelector(selectAllTasksOrderedBySeq);
   const dispatch = useAppDispatch();
@@ -38,10 +43,16 @@ const Board = () => {
 
   useEffect(() => {
     let isMounted = true;
+    if (!id) return;
+
+    const fetchUsers = async () => {
+      if (isMounted) {
+        const response = await getWorkspaceUsers(id);
+        dispatch(setReduxUsers(response));
+      }
+    };
 
     const fetchBoards = async () => {
-      if (!id) return;
-
       if (isMounted) {
         const response = await index(id);
         const columns = response.columns.map(({ tasks, ...column }) => ({
@@ -51,9 +62,10 @@ const Board = () => {
 
         const tasks = response.columns
           .map((column) =>
-            column.tasks.map(({ labels, ...task }) => ({
+            column.tasks.map(({ labels, user, ...task }) => ({
               ...task,
               labels: labels.map(({ id }) => id),
+              user_id: user?.id || null,
             }))
           )
           .flat();
@@ -63,12 +75,14 @@ const Board = () => {
       }
     };
 
+    fetchUsers();
     fetchBoards();
 
     return () => {
       isMounted = false;
       dispatch(resetTasks());
       dispatch(resetColumns());
+      dispatch(setSidebarOpen(false));
     };
   }, [id]);
 
@@ -175,21 +189,26 @@ const Board = () => {
           </Button>
         </Link>
       </div>
-      <div className="flex flex-grow gap-4 w-full overflow-auto">
-        <DragDropContext onDragEnd={onDragEnd}>
-          <div className="flex h-full gap-4">
-            {reduxColumns.map((id) => (
-              <BoardColumn
-                key={id}
-                columnId={id}
-              />
-            ))}
-          </div>
-        </DragDropContext>
-
-        <CreateColumnPopover newColumnSeq={lastSeq + SequenceIncrementor} />
-      </div>
-
+      {reduxColumns.length ? (
+        <div className="flex flex-grow gap-4 w-full overflow-auto">
+          <DragDropContext onDragEnd={onDragEnd}>
+            <div className="flex h-full gap-4">
+              {reduxColumns.map((id) => (
+                <BoardColumn
+                  key={id}
+                  columnId={id}
+                />
+              ))}
+            </div>
+          </DragDropContext>
+          <CreateColumnPopover newColumnSeq={lastSeq + SequenceIncrementor} />
+        </div>
+      ) : (
+        <div className="flex flex-grow gap-4">
+          <Skeleton className="w-[350px]" />
+          <Skeleton className="w-[350px]" />
+        </div>
+      )}
       <EditTaskSidebar />
     </div>
   );

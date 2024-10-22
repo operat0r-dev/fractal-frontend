@@ -5,7 +5,7 @@ import {
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
 import { useAppSelector } from '@/store/hooks';
-import { selectAllUsers } from '../slices/usersSlice';
+import { selectAllUsers } from '../../users/slices/usersSlice';
 import { selectCurrentWorkspace } from '../slices/workspacesSlice';
 
 const Banner = () => {

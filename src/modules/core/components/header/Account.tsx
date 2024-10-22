@@ -3,107 +3,52 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { logout } from '@/modules/auth/slices/auth';
-import { useNavigate } from 'react-router-dom';
 import { User } from '@/modules/auth/interfaces/types';
+import { logout } from '@/modules/auth/slices/auth';
+import { useAppDispatch } from '@/store/hooks';
 import { ExternalLink, Users } from 'lucide-react';
-import { useWorkspacesApi } from '@/modules/workspaces/api/WorkspacesApi';
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useState } from 'react';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useToast } from '@/hooks/use-toast';
-import { setReduxWorkspaces } from '@/modules/workspaces/slices/workspacesSlice';
-import { Form, FormField, FormItem, FormControl } from '@/components/ui/form';
 import { useTranslation } from 'react-i18next';
-import { selectAllWorkspaces } from '@/modules/workspaces/slices/workspacesSlice';
+import { useNavigate } from 'react-router-dom';
 
 type AccountProps = {
   user: User | null;
+  openDialog: () => void;
 };
 
-const formSchema = z.object({
-  name: z.string(),
-});
-
-const Account = (props: AccountProps) => {
-  const [open, setOpen] = useState(false);
-  const workspaces = useAppSelector(selectAllWorkspaces);
-  const { createWorkspace } = useWorkspacesApi();
-  const { toast } = useToast();
+const Account = ({ user, openDialog }: AccountProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-    },
-  });
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      const response = await createWorkspace(values);
-      dispatch(setReduxWorkspaces([response, ...workspaces]));
-
-      setOpen(false);
-
-      toast({
-        description: t('workspace.create.success'),
-        variant: 'success',
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          description: t('workspace.error.create'),
-          variant: 'destructive',
-        });
-      }
-    }
-  };
-
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="secondary"
           size="icon"
           className="rounded-full h-8 w-8"
         >
-          <span className="uppercase">{props.user?.email.charAt(0)}</span>
+          <span className="uppercase">{user?.email.charAt(0)}</span>
           <span className="sr-only">{t('accountDropdown.myAccount')}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="p-4"
+        className="p-2"
       >
         <DropdownMenuLabel>{t('accountDropdown.myAccount')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <div className="flex gap-4 items-center mb-2">
           <div className="flex items-center justify-center rounded-full h-9 w-9 bg-muted">
-            <span className="uppercase">{props.user?.email.charAt(0)}</span>
+            <span className="uppercase">{user?.email.charAt(0)}</span>
           </div>
           <div>
-            <p className="font-medium">{props.user?.name}</p>
-            <p className="text-sm">{props.user?.email}</p>
+            <p className="font-medium">{user?.name}</p>
+            <p className="text-sm">{user?.email}</p>
           </div>
         </div>
         <DropdownMenuItem
@@ -125,61 +70,12 @@ const Account = (props: AccountProps) => {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="gap-4"
-          onClick={() => setOpen(true)}
+          onClick={openDialog}
         >
           <Users className="h-4 w-4" />
           {t('accountDropdown.createWorkspace')}
         </DropdownMenuItem>
       </DropdownMenuContent>
-
-      <Dialog
-        open={open}
-        onOpenChange={setOpen}
-      >
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>{t('workspace.create.title')}</DialogTitle>
-            <DialogDescription>
-              {t('workspace.create.description')}
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form>
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label
-                          htmlFor="name"
-                          className="text-right"
-                        >
-                          {t('workspace.form.name')}
-                        </Label>
-                        <Input
-                          id="name"
-                          className="col-span-3"
-                          {...field}
-                        />
-                      </div>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
-          <DialogFooter>
-            <Button
-              type="submit"
-              onClick={form.handleSubmit(onSubmit)}
-            >
-              {t('general.submit')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </DropdownMenu>
   );
 };

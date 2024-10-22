@@ -64,7 +64,7 @@ const useLabelApi = () => {
     return apiResponse.data;
   };
 
-  const assign = async (id: string, payload: AssignLabelsRequest) => {
+  const assignLabels = async (id: number, payload: AssignLabelsRequest) => {
     const response: AxiosResponse<ApiResponse<ApiTask>> = await apiClient.post(
       `/label/${id}/assign`,
       payload
@@ -87,7 +87,7 @@ const useLabelApi = () => {
     index,
     storeLabel,
     updateLabel,
-    assign,
+    assignLabels,
   };
 };
 

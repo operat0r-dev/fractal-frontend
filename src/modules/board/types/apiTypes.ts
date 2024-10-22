@@ -1,3 +1,12 @@
+import { ApiUser } from '@/modules/users/types/apiTypes';
+
+export type ApiBoard = {
+  id: number;
+  name: string;
+  workspace_id: number;
+  columns: ApiColumn[];
+  color: string;
+};
 export interface ApiColumn {
   id: number;
   board_id: number;
@@ -13,6 +22,7 @@ export interface ApiTask {
   title: string;
   seq: number;
   labels: ApiLabel[];
+  user: ApiUser | null;
 }
 
 export interface ApiLabel {

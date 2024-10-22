@@ -55,8 +55,14 @@ const columnsSlice = createSlice({
     setReduxColumns: (state, action: PayloadAction<ReduxColumn[]>) => {
       columnsAdapter.setAll(state, action.payload);
     },
-    addNewColumn: (state, action: PayloadAction<ReduxColumn>) => {
-      columnsAdapter.addOne(state, action.payload);
+    addNewColumn: (state, action: PayloadAction<ApiColumn>) => {
+      const column = action.payload;
+      const tasks = column.tasks.map(({ id }) => Number(id));
+
+      columnsAdapter.addOne(state, {
+        ...column,
+        tasks,
+      });
     },
     resetColumns: () => initialState,
   },

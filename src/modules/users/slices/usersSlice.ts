@@ -5,7 +5,7 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
-import { ReduxUser } from '../types/stateTypes';
+import { ReduxUser } from '@/modules/users/types/stateTypes';
 
 const usersAdapter = createEntityAdapter<ReduxUser>();
 
@@ -13,7 +13,7 @@ const initialState: EntityState<ReduxUser, number> =
   usersAdapter.getInitialState({});
 
 const usersSlice = createSlice({
-  name: 'columns',
+  name: 'users',
   initialState,
   reducers: {
     updateReduxUser: (state, action: PayloadAction<ReduxUser>) => {

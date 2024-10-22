@@ -6,7 +6,7 @@ import columnsReducer from '@/modules/board/slices/columnsSlice';
 import tasksReducer from '@/modules/board/slices/tasksSlice';
 import labelsReducer from '@/modules/board/slices/labelsSlice';
 import boardsReducer from '@/modules/workspaces/slices/boardsSlice';
-import usersReducer from '@/modules/workspaces/slices/usersSlice';
+import usersReducer from '@/modules/users/slices/usersSlice';
 
 export const store = configureStore({
   reducer: {

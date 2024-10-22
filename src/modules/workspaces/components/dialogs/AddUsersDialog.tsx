@@ -11,16 +11,18 @@ import {
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { useWorkspacesApi } from '../../api/WorkspacesApi';
+import { useWorkspacesApi } from '../../api/workspacesApi';
 import { MultiSelect } from '@/components/custom/multi-select';
 import { useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import useUsersApi from '@/modules/users/api/usersApi';
 
 const AddUsersDialog = () => {
-  const { t } = useTranslation();
-  const { getUsers, inviteUsers } = useWorkspacesApi();
   const [users, setUsers] = useState<{ value: string; label: string }[]>([]);
+  const { t } = useTranslation();
+  const { inviteUsers } = useWorkspacesApi();
+  const { getUsers } = useUsersApi();
   const usersToInvite = useRef<number[]>([]);
   const { id } = useParams();
   const { toast } = useToast();

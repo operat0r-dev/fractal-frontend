@@ -1,15 +1,16 @@
 import apiClient from '@/apiClient';
 import { ApiResponse } from '@/types';
 import { AxiosResponse } from 'axios';
-import { BoardResponse, CreateBoardRequest } from '@/modules/board/types/Board';
+import { CreateBoardRequest } from '@/modules/board/types/Board';
 import {
   CreateColumnRequest,
   CreateTaskRequest,
   UpdateTaskRequest,
   ApiColumn,
   ApiTask,
+  ApiBoard,
 } from '../types/apiTypes';
-import { ApiBoard } from '@/modules/workspaces/types/apiTypes';
+import { ValidationError } from '@/modules/core/errors/errors';
 
 const useBoardApi = () => {
   const storeColumn = async (payload: CreateColumnRequest) => {
@@ -18,12 +19,8 @@ const useBoardApi = () => {
 
     const apiResponse: ApiResponse<ApiColumn> = response.data;
 
-    if (!apiResponse.success) {
-      if (!apiResponse.message) {
-        throw new Error('wiadomosc z frontu');
-      }
-
-      throw new Error('wiadomosc z backu');
+    if (!apiResponse.success && apiResponse.invalidFields) {
+      throw new ValidationError(apiResponse.message, apiResponse.invalidFields);
     }
 
     return apiResponse.data;
@@ -41,11 +38,7 @@ const useBoardApi = () => {
     const apiResponse: ApiResponse<ApiColumn> = response.data;
 
     if (!apiResponse.success) {
-      if (!apiResponse.message) {
-        throw new Error('wiadomosc z frontu');
-      }
-
-      throw new Error('wiadomosc z backu');
+      throw new Error(apiResponse.message || 'wiadomosc z frontu');
     }
 
     return apiResponse.data;
@@ -56,29 +49,22 @@ const useBoardApi = () => {
 
     const apiResponse: ApiResponse<ApiBoard> = response.data;
 
-    if (!apiResponse.success) {
-      if (!apiResponse.message) {
-        throw new Error('wiadomosc z frontu');
-      }
-
-      throw new Error('wiadomosc z backu');
+    if (!apiResponse.success && apiResponse.invalidFields) {
+      throw new ValidationError(apiResponse.message, apiResponse.invalidFields);
     }
 
     return apiResponse.data;
   };
 
   const index = async (id: string) => {
-    const response: AxiosResponse<ApiResponse<BoardResponse>> =
-      await apiClient.get(`/boards/${id}`);
+    const response: AxiosResponse<ApiResponse<ApiBoard>> = await apiClient.get(
+      `/boards/${id}`
+    );
 
-    const apiResponse: ApiResponse<BoardResponse> = response.data;
+    const apiResponse: ApiResponse<ApiBoard> = response.data;
 
     if (!apiResponse.success) {
-      if (!apiResponse.message) {
-        throw new Error('wiadomosc z frontu');
-      }
-
-      throw new Error('wiadomosc z backu');
+      throw new Error(apiResponse.message || 'wiadomosc z frontu');
     }
 
     return apiResponse.data;
@@ -93,11 +79,7 @@ const useBoardApi = () => {
     const apiResponse: ApiResponse<ApiTask> = response.data;
 
     if (!apiResponse.success) {
-      if (!apiResponse.message) {
-        throw new Error('wiadomosc z frontu');
-      }
-
-      throw new Error('wiadomosc z backu');
+      throw new Error(apiResponse.message || 'wiadomosc z frontu');
     }
 
     return apiResponse.data;
@@ -115,11 +97,25 @@ const useBoardApi = () => {
     const apiResponse: ApiResponse<[]> = response.data;
 
     if (!apiResponse.success) {
-      if (!apiResponse.message) {
-        throw new Error('wiadomosc z frontu');
-      }
+      throw new Error(apiResponse.message || 'wiadomosc z frontu');
+    }
 
-      throw new Error('wiadomosc z backu');
+    return apiResponse.data;
+  };
+
+  const assignUser = async (
+    id: number,
+    payload: { user_id: number | null }
+  ) => {
+    const response: AxiosResponse<ApiResponse<ApiTask>> = await apiClient.put(
+      `/task/${id}/assign-user`,
+      payload
+    );
+
+    const apiResponse: ApiResponse<ApiTask> = response.data;
+
+    if (!apiResponse.success) {
+      throw new Error(apiResponse.message || 'wiadomosc z frontu');
     }
 
     return apiResponse.data;
@@ -132,6 +128,7 @@ const useBoardApi = () => {
     updateTask,
     updateColumn,
     storeBoard,
+    assignUser,
   };
 };
 

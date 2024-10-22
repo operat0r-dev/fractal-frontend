@@ -1,25 +1,19 @@
+import { ApiUser } from '@/modules/users/types/apiTypes';
+
 export type ApiWorkspace = {
   id: number;
   name: string;
   description: string;
   created_at: string;
   updated_at: string;
-  boards: Board[];
+  boards: ApiWorkspaceBoard[];
   current: boolean;
-  users: User[];
+  users: ApiUser[];
 };
 
-export type ApiBoard = {
+export type ApiWorkspaceBoard = {
   id: number;
   name: string;
-  description?: string;
-  created_at: string;
-  updated_at: string;
   workspace_id: number;
+  color: string;
 };
-
-export interface ApiUser {
-  id: number;
-  email: string;
-  name: string;
-}

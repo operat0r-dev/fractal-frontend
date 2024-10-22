@@ -1,8 +1,11 @@
 import Account from './header/Account';
 import WorkspaceSelector from './header/WorkspaceSelector';
 import { useAppSelector } from '@/store/hooks';
+import CreateWorkspaceDialog from './header/CreateWorkspaceDialog';
+import { useState } from 'react';
 
 const Header = () => {
+  const [open, setOpen] = useState<boolean>(false);
   const user = useAppSelector((state) => state.authData.user);
 
   return (
@@ -18,8 +21,15 @@ const Header = () => {
         </nav>
       </div>
       <div className="flex gap-4">
-        <Account user={user} />
+        <Account
+          user={user}
+          openDialog={() => setOpen(true)}
+        />
       </div>
+      <CreateWorkspaceDialog
+        open={open}
+        setOpen={setOpen}
+      />
     </div>
   );
 };

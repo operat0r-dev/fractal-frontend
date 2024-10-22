@@ -6,7 +6,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -19,21 +18,25 @@ import {
 import { Input } from '@/components/ui/input';
 import LoadingButton from '@/components/ui/loading-button';
 import { useToast } from '@/hooks/use-toast';
+import { useWorkspacesApi } from '@/modules/workspaces/api/workspacesApi';
 import {
-  selectCurrentWorkspace,
-  updateReduxWorkspace,
+  selectAllWorkspaces,
+  setReduxWorkspaces,
 } from '@/modules/workspaces/slices/workspacesSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Edit } from 'lucide-react';
-import { memo, useState } from 'react';
+import { SetStateAction, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { useWorkspacesApi } from '../../api/workspacesApi';
+
+type CreateWorkspaceDialogProps = {
+  open: boolean;
+  setOpen: (value: SetStateAction<boolean>) => void;
+};
 
 const formSchema = z.object({
-  name: z.string({ message: 'this field is required' }),
+  name: z.string(),
   description: z.string().optional(),
 });
 
@@ -42,13 +45,15 @@ const defaultValues = {
   description: undefined,
 };
 
-const EditWorkspaceDialog = () => {
-  const [open, setOpen] = useState<boolean>(false);
+const CreateWorkspaceDialog = ({
+  open,
+  setOpen,
+}: CreateWorkspaceDialogProps) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const { updateWorkspace } = useWorkspacesApi();
-  const { toast } = useToast();
   const { t } = useTranslation();
-  const workspace = useAppSelector(selectCurrentWorkspace);
+  const workspaces = useAppSelector(selectAllWorkspaces);
+  const { createWorkspace } = useWorkspacesApi();
+  const { toast } = useToast();
   const dispatch = useAppDispatch();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -58,29 +63,24 @@ const EditWorkspaceDialog = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      if (!workspace?.id) return;
       setLoading(true);
-      const response = await updateWorkspace(String(workspace.id), values);
-      dispatch(updateReduxWorkspace(response));
+      const response = await createWorkspace(values);
+      dispatch(setReduxWorkspaces([response, ...workspaces]));
 
       toast({
+        description: t('workspace.create.success'),
         variant: 'success',
-        description: t('workspace.edit.success'),
       });
       setLoading(false);
       setOpen(false);
     } catch (error) {
       if (error instanceof Error) {
         toast({
+          description: t('workspace.error.create'),
           variant: 'destructive',
-          description: t('workspace.error.changeName'),
         });
       }
     }
-  };
-
-  const handleOpen = () => {
-    form.reset({ name: workspace?.name, description: workspace?.description });
   };
 
   return (
@@ -88,20 +88,11 @@ const EditWorkspaceDialog = () => {
       open={open}
       onOpenChange={setOpen}
     >
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => handleOpen()}
-        >
-          <Edit className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('workspace.edit.title')}</DialogTitle>
+          <DialogTitle>{t('workspace.create.title')}</DialogTitle>
           <DialogDescription>
-            {t('workspace.edit.description')}
+            {t('workspace.create.description')}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -115,10 +106,10 @@ const EditWorkspaceDialog = () => {
                   <FormControl>
                     <Input
                       id="name"
+                      className="col-span-3"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -150,6 +141,7 @@ const EditWorkspaceDialog = () => {
           </Button>
           <LoadingButton
             loading={loading}
+            type="submit"
             onClick={form.handleSubmit(onSubmit)}
           >
             {t('general.submit')}
@@ -160,4 +152,4 @@ const EditWorkspaceDialog = () => {
   );
 };
 
-export default memo(EditWorkspaceDialog);
+export default CreateWorkspaceDialog;

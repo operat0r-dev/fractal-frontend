@@ -14,11 +14,11 @@ const tasksAdapter = createEntityAdapter<ReduxTask>({
 });
 
 export interface TasksSliceState extends EntityState<ReduxTask, number> {
-  currentTask: ReduxTask | undefined;
+  currentTask: ReduxTask | null;
 }
 
 const initialState: TasksSliceState = tasksAdapter.getInitialState({
-  currentTask: undefined,
+  currentTask: null,
 });
 
 const tasksSlice = createSlice({
@@ -43,16 +43,19 @@ const tasksSlice = createSlice({
       const task = action.payload;
       const labels = task.labels.map(({ id }) => id);
 
-      tasksAdapter.addOne(state, { ...task, labels });
+      tasksAdapter.addOne(state, { ...task, labels, user_id: null });
     },
     setCurrentTask: (state, action: PayloadAction<number>) => {
       state.currentTask = state.entities[action.payload];
     },
     updateTask: (state, action: PayloadAction<ApiTask>) => {
-      const { id, labels } = action.payload;
+      const { id, labels, user } = action.payload;
       const newLabels = labels.map(({ id }) => id);
 
-      tasksAdapter.updateOne(state, { id, changes: { labels: newLabels } });
+      tasksAdapter.updateOne(state, {
+        id,
+        changes: { labels: newLabels, user_id: user ? user.id : null },
+      });
     },
     resetTasks: () => initialState,
   },

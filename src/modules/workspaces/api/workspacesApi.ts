@@ -1,7 +1,9 @@
 import apiClient from '@/apiClient';
 import { AxiosResponse } from 'axios';
 import { ApiResponse } from '@/types';
-import { Workspace, User } from '../types/types';
+import { ApiWorkspace } from '../types/apiTypes';
+import { AccessForbiddenError } from '@/modules/core/errors/errors';
+import { ApiUser } from '@/modules/users/types/apiTypes';
 
 type CreateWorkspaceRequest = {
   name: string;
@@ -9,7 +11,7 @@ type CreateWorkspaceRequest = {
 
 export function useWorkspacesApi() {
   const createWorkspace = async (payload: CreateWorkspaceRequest) => {
-    const response: AxiosResponse<ApiResponse<Workspace>> =
+    const response: AxiosResponse<ApiResponse<ApiWorkspace>> =
       await apiClient.post('/workspace/create', payload);
 
     const apiResponse = response.data;
@@ -29,7 +31,7 @@ export function useWorkspacesApi() {
     id: string,
     payload: Partial<CreateWorkspaceRequest>
   ) => {
-    const response: AxiosResponse<ApiResponse<Workspace>> =
+    const response: AxiosResponse<ApiResponse<ApiWorkspace>> =
       await apiClient.patch(`/workspace/update/${id}`, payload);
 
     const apiResponse = response.data;
@@ -46,7 +48,7 @@ export function useWorkspacesApi() {
   };
 
   const getUserWorkspaces = async () => {
-    const response: AxiosResponse<ApiResponse<Workspace[]>> =
+    const response: AxiosResponse<ApiResponse<ApiWorkspace[]>> =
       await apiClient.get('/user/workspaces');
 
     const apiResponse = response.data;
@@ -63,55 +65,15 @@ export function useWorkspacesApi() {
   };
 
   const getWorkspace = async (id: string) => {
-    const response: AxiosResponse<ApiResponse<Workspace>> = await apiClient.get(
-      `/workspace/${id}`
-    );
+    const response: AxiosResponse<ApiResponse<ApiWorkspace>> =
+      await apiClient.get(`/workspace/${id}`);
 
     const apiResponse = response.data;
 
     if (!apiResponse.success) {
-      if (!apiResponse.message) {
-        throw new Error('wiadomosc z frontu');
-      }
-
-      throw new Error('wiadomosc z backu');
-    }
-
-    return apiResponse.data;
-  };
-
-  const setUserWorkspace = async (id: number) => {
-    const response: AxiosResponse<ApiResponse<[]>> = await apiClient.patch(
-      '/user/set-user-workspace',
-      { id }
-    );
-
-    const apiResponse = response.data;
-
-    if (!apiResponse.success) {
-      if (!apiResponse.message) {
-        throw new Error('wiadomosc z frontu');
-      }
-
-      throw new Error('wiadomosc z backu');
-    }
-
-    return apiResponse.data;
-  };
-
-  const getUsers = async (query: string) => {
-    const response: AxiosResponse<ApiResponse<User[]>> = await apiClient.get(
-      `/users/email/${query}`
-    );
-
-    const apiResponse: ApiResponse<User[]> = response.data;
-
-    if (!apiResponse.success) {
-      if (!apiResponse.message) {
-        throw new Error('wiadomosc z frontu');
-      }
-
-      throw new Error('wiadomosc z backu');
+      throw new AccessForbiddenError(
+        apiResponse.message || 'wiadomosc z frontu'
+      );
     }
 
     return apiResponse.data;
@@ -136,13 +98,26 @@ export function useWorkspacesApi() {
     return apiResponse.data;
   };
 
+  const getWorkspaceUsers = async (id: string) => {
+    const response: AxiosResponse<ApiResponse<ApiUser[]>> = await apiClient.get(
+      `/workspace/${id}/users`
+    );
+
+    const apiResponse: ApiResponse<ApiUser[]> = response.data;
+
+    if (!apiResponse.success) {
+      throw new Error(apiResponse.message || 'wiadomosc z frontu');
+    }
+
+    return apiResponse.data;
+  };
+
   return {
-    setUserWorkspace,
     createWorkspace,
     updateWorkspace,
     getUserWorkspaces,
     getWorkspace,
-    getUsers,
     inviteUsers,
+    getWorkspaceUsers,
   };
 }
