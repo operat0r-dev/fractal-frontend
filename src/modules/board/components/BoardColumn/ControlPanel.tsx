@@ -14,21 +14,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
-import useBoardApi from '@/modules/board/api/boardApi';
+import ColumnApi from '../../api/column';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, EllipsisVertical, Files, Trash } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { predefinedColors } from '../../constants/PredefinedColors';
-import { ReduxColumn } from '../../types/stateTypes';
+import { Column } from '../../domain';
 import CreateTaskPopover from './CreateTaskPopover.';
 import { useAppDispatch } from '@/store/hooks';
-import { columnUpdated } from '../../slices/columnsSlice';
+import { updateReduxColumn } from '../../slices/columnsSlice';
 
 type props = {
   collapsed: boolean;
-  column: ReduxColumn;
+  column: Column;
   taskIds: number[];
   onCollapsedChange: () => void;
 };
@@ -43,7 +43,6 @@ const ControlPanel = ({
   onCollapsedChange,
   taskIds,
 }: props) => {
-  const { updateColumn } = useBoardApi();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
@@ -60,13 +59,15 @@ const ControlPanel = ({
     if (!values.name.length) {
       columnNameForm.setValue('name', column.name);
     }
-    const response = await updateColumn(values, String(column.id));
-    dispatch(columnUpdated(response));
+    ColumnApi.update(column.id, values).then((column) =>
+      dispatch(updateReduxColumn(column))
+    );
   };
 
   const handleColorChange = async (color: string) => {
-    const response = await updateColumn({ color }, String(column.id));
-    dispatch(columnUpdated(response));
+    ColumnApi.update(column.id, { color }).then((column) =>
+      dispatch(updateReduxColumn(column))
+    );
   };
 
   return (

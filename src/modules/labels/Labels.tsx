@@ -19,7 +19,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RadioGroupItem } from '@radix-ui/react-radio-group';
 import { ColumnDef } from '@tanstack/react-table';
@@ -30,9 +29,9 @@ import { useParams } from 'react-router-dom';
 import { z } from 'zod';
 import TaskBadge from '../../components/custom/task-badge';
 import { ReduxLabel } from '../workspaces/types/stateTypes';
-import useLabelApi from './api/TaskLabels';
-import { predefinedColors } from './constants/PredefinedColors';
-import { setLabels } from './slices/boardSlice';
+import LabelApi from '@/modules/labels/api/label';
+import { predefinedColors } from '../board/constants/PredefinedColors';
+import { Label as TaskLabel } from './domain';
 
 const formSchema = z.object({
   name: z.string(),
@@ -42,36 +41,32 @@ const formSchema = z.object({
 });
 
 const Labels = () => {
+  const [labels, setLabels] = useState<TaskLabel[]>([]);
+  const { board_id } = useParams();
   const [open, setOpen] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
-  const { index, storeLabel, updateLabel } = useLabelApi();
-  const { labels } = useAppSelector((state) => state.board);
-  const dispatch = useAppDispatch();
-  const { id } = useParams();
   const { t } = useTranslation();
   const { toast } = useToast();
 
   useEffect(() => {
     let isMounted = false;
 
-    if (isMounted) return;
-    const fetchLabels = async () => {
-      const resposne = await index(String(id));
-      dispatch(setLabels(resposne));
-      isMounted = true;
-    };
+    if (isMounted || !board_id) return;
 
-    fetchLabels();
+    LabelApi.index(board_id).then((labels) => {
+      setLabels(labels);
+      isMounted = true;
+    });
 
     return () => {
       isMounted = false;
     };
-  }, [id]);
+  }, [board_id]);
 
   const defaultValues = {
     name: '',
     color: predefinedColors[0].hsl,
-    board_id: Number(id),
+    board_id: Number(board_id),
     label_id: null,
   };
 
@@ -95,47 +90,51 @@ const Labels = () => {
   };
 
   const handleEdit = async (payload: z.infer<typeof formSchema>) => {
-    try {
-      const { label_id, ...rest } = payload;
-      const response = await updateLabel({ ...rest }, String(label_id));
-      dispatch(
-        setLabels(
-          labels.map((label) => {
-            if (label.id === response.id) {
-              return { ...label, color: response.color, name: response.name };
-            } else {
-              return label;
+    const { label_id, ...rest } = payload;
+    if (!label_id) return;
+
+    LabelApi.update(label_id, { ...rest })
+      .then(({ id, color, name }) => {
+        setLabels((prevLabels) =>
+          prevLabels.map((label) => {
+            if (label.id === id) {
+              return { ...label, color, name };
             }
+            return label;
           })
-        )
-      );
-      closeDialog();
-      setEditMode(false);
-      resetToDefault();
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          description: t('label.error.edit'),
-          variant: 'destructive',
-        });
-      }
-    }
+        );
+
+        closeDialog();
+        setEditMode(false);
+        resetToDefault();
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          toast({
+            description: t('label.error.edit'),
+            variant: 'destructive',
+          });
+        }
+      });
   };
 
   const handleStore = async (payload: z.infer<typeof formSchema>) => {
-    try {
-      const response = await storeLabel(payload);
-      dispatch(setLabels([...labels, response]));
-      closeDialog();
-      resetToDefault();
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          description: t('label.error.create'),
-          variant: 'destructive',
+    LabelApi.store(payload)
+      .then((label) => {
+        setLabels((prevLabels) => {
+          return [...prevLabels, label];
         });
-      }
-    }
+        closeDialog();
+        resetToDefault();
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          toast({
+            description: t('label.error.create'),
+            variant: 'destructive',
+          });
+        }
+      });
   };
 
   const openDialog = (payload: ReduxLabel) => {

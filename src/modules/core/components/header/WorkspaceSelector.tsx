@@ -14,44 +14,32 @@ import {
   selectCurrentWorkspace,
   selectAllWorkspaces,
 } from '@/modules/workspaces/slices/workspacesSlice';
-import { useWorkspacesApi } from '@/modules/workspaces/api/workspacesApi';
+import WorkspaceApi from '@/modules/workspaces/api/workspace';
 import { ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { switchWorkspaces } from '@/modules/workspaces/slices/workspacesSlice';
-import useUsersApi from '@/modules/users/api/usersApi';
+import UserApi from '@/modules/users/api/user';
+import { useHandleError } from '@/modules/workspaces/components/useError';
 
 const WorkspaceSelector = () => {
-  const { getUserWorkspaces } = useWorkspacesApi();
-  const { setUserWorkspace } = useUsersApi();
   const { toast } = useToast();
   const { t } = useTranslation();
   const workspaces = useAppSelector(selectAllWorkspaces);
   const current = useAppSelector(selectCurrentWorkspace);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { handleError } = useHandleError();
 
   useEffect(() => {
     let isMounted = true;
 
-    const fetchWorkspaces = async () => {
-      if (isMounted) {
-        try {
-          const response = await getUserWorkspaces();
-          dispatch(setReduxWorkspaces(response));
-        } catch (error) {
-          if (error instanceof Error) {
-            toast({
-              description: t('workspace.error.getMany'),
-              variant: 'destructive',
-            });
-          }
-        }
-      }
-    };
-
-    fetchWorkspaces();
+    if (isMounted) {
+      WorkspaceApi.getMany()
+        .then((workspace) => dispatch(setReduxWorkspaces(workspace)))
+        .catch((error) => handleError(error));
+    }
 
     return () => {
       isMounted = false;
@@ -61,14 +49,15 @@ const WorkspaceSelector = () => {
   const setCurrentWorkspace = async (id: number) => {
     try {
       if (!current) return;
-      await setUserWorkspace(id);
-      dispatch(
-        switchWorkspaces({
-          prevWorkspaceId: current.id,
-          currWorkspaceId: id,
-        })
-      );
-      navigate(`/workspace/${id}/boards`);
+      UserApi.setWorkspace(id).then(() => {
+        dispatch(
+          switchWorkspaces({
+            prevWorkspaceId: current.id,
+            currWorkspaceId: id,
+          })
+        );
+        navigate(`/workspace/${id}/boards`);
+      });
     } catch (error) {
       if (error instanceof Error) {
         console.log(error);

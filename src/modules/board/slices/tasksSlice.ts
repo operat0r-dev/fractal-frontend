@@ -7,7 +7,8 @@ import {
 } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
 import { ReduxTask } from '../types/stateTypes';
-import { ApiTask } from '../types/apiTypes';
+import { ApiTask } from '@/modules/tasks/types/apiTypes';
+import { ReduxTask } from '../types/stateTypes';
 
 const tasksAdapter = createEntityAdapter<ReduxTask>({
   sortComparer: (a, b) => a.seq - b.seq,

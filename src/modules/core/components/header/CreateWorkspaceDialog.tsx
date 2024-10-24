@@ -18,7 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import LoadingButton from '@/components/ui/loading-button';
 import { useToast } from '@/hooks/use-toast';
-import { useWorkspacesApi } from '@/modules/workspaces/api/workspacesApi';
+import WorkspaceApi from '@/modules/workspaces/api/workspace';
 import {
   selectAllWorkspaces,
   setReduxWorkspaces,
@@ -52,7 +52,6 @@ const CreateWorkspaceDialog = ({
   const [loading, setLoading] = useState<boolean>(false);
   const { t } = useTranslation();
   const workspaces = useAppSelector(selectAllWorkspaces);
-  const { createWorkspace } = useWorkspacesApi();
   const { toast } = useToast();
   const dispatch = useAppDispatch();
 
@@ -62,25 +61,28 @@ const CreateWorkspaceDialog = ({
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      setLoading(true);
-      const response = await createWorkspace(values);
-      dispatch(setReduxWorkspaces([response, ...workspaces]));
+    setLoading(true);
 
-      toast({
-        description: t('workspace.create.success'),
-        variant: 'success',
-      });
-      setLoading(false);
-      setOpen(false);
-    } catch (error) {
-      if (error instanceof Error) {
+    WorkspaceApi.createWorkspace(values)
+      .then((response) => {
+        dispatch(setReduxWorkspaces([response, ...workspaces]));
+
         toast({
-          description: t('workspace.error.create'),
-          variant: 'destructive',
+          description: t('workspace.create.success'),
+          variant: 'success',
         });
-      }
-    }
+        setLoading(false);
+        setOpen(false);
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          toast({
+            description: t('workspace.error.create'),
+            variant: 'destructive',
+          });
+          setLoading(false);
+        }
+      });
   };
 
   return (

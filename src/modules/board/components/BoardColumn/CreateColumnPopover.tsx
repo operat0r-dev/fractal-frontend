@@ -19,7 +19,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { predefinedColors } from '../../constants/PredefinedColors';
-import useBoardApi from '@/modules/board/api/boardApi';
+import ColumnApi from '@/modules/board/api/column';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -32,7 +32,6 @@ type props = {
 };
 
 const CreateColumnPopover = ({ newColumnSeq }: props) => {
-  const { storeColumn } = useBoardApi();
   const { t } = useTranslation();
   const { id } = useParams<string>();
   const [open, setOpen] = useState<boolean>(false);
@@ -69,16 +68,17 @@ const CreateColumnPopover = ({ newColumnSeq }: props) => {
   const { setError } = form;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      const response = await storeColumn({ ...values, seq: newColumnSeq });
-      dispatch(addNewColumn(response));
-      setOpen(false);
-      form.reset(defaultValues);
-    } catch (error) {
-      handleError(error, {
-        formErrorHandler: setError,
-      });
-    }
+    ColumnApi.store({ ...values, seq: newColumnSeq })
+      .then((column) => {
+        dispatch(addNewColumn(column));
+        setOpen(false);
+        form.reset(defaultValues);
+      })
+      .catch((error) =>
+        handleError(error, {
+          formErrorHandler: setError,
+        })
+      );
   };
 
   return (

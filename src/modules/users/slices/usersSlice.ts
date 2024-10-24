@@ -5,18 +5,19 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
-import { ReduxUser } from '@/modules/users/types/stateTypes';
+import { User } from '@/modules/users/domain/user';
 
-const usersAdapter = createEntityAdapter<ReduxUser>();
+const usersAdapter = createEntityAdapter<User>();
 
-const initialState: EntityState<ReduxUser, number> =
-  usersAdapter.getInitialState({});
+const initialState: EntityState<User, number> = usersAdapter.getInitialState(
+  {}
+);
 
 const usersSlice = createSlice({
   name: 'users',
   initialState,
   reducers: {
-    updateReduxUser: (state, action: PayloadAction<ReduxUser>) => {
+    updateReduxUser: (state, action: PayloadAction<User>) => {
       const { id, name, email } = action.payload;
 
       const existingColumn = state.entities[id];
@@ -26,10 +27,10 @@ const usersSlice = createSlice({
         existingColumn.email = email;
       }
     },
-    setReduxUsers: (state, action: PayloadAction<ReduxUser[]>) => {
+    setReduxUsers: (state, action: PayloadAction<User[]>) => {
       usersAdapter.setAll(state, action.payload);
     },
-    addNewUser: (state, action: PayloadAction<ReduxUser>) => {
+    addNewUser: (state, action: PayloadAction<User>) => {
       usersAdapter.addOne(state, action.payload);
     },
     resetUsers: () => initialState,

@@ -5,31 +5,30 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
-import { ApiLabel } from '../types/apiTypes';
+import { Label } from '../domain';
 
-const taskLabelsAdapter = createEntityAdapter<ApiLabel>({
+const taskLabelsAdapter = createEntityAdapter<Label>({
   sortComparer: (a, b) => a.name.localeCompare(b.name),
 });
 
-const initialState: EntityState<ApiLabel, number> =
+const initialState: EntityState<Label, number> =
   taskLabelsAdapter.getInitialState();
 
 const tasksSlice = createSlice({
   name: 'tasks',
   initialState,
   reducers: {
-    labelsUpdated: (state, action: PayloadAction<ApiLabel>) => {
-      const { id, name, color, pivot } = action.payload;
+    labelsUpdated: (state, action: PayloadAction<Label>) => {
+      const { id, name, color } = action.payload;
 
       const existingLabel = state.entities[id];
 
       if (existingLabel) {
         existingLabel.name = name;
         existingLabel.color = color;
-        existingLabel.pivot.task_id = pivot.task_id;
       }
     },
-    setReduxLabels: (state, action: PayloadAction<ApiLabel[]>) => {
+    setReduxLabels: (state, action: PayloadAction<Label[]>) => {
       taskLabelsAdapter.setAll(state, action.payload);
     },
   },
