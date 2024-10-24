@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import useBoardApi from '@/modules/board/api/boardApi';
+import TaskApi from '@/modules/tasks/api/task';
 import { SequenceIncrementor } from '@/modules/board/constants/SequenceConstants';
 import { useTranslation } from 'react-i18next';
 import { addNewTask, selectTaskById } from '../../slices/tasksSlice';
@@ -35,7 +35,6 @@ const formSchema = z.object({
 });
 
 const CreateTaskPopover = ({ column, taskIds }: props) => {
-  const { storeTask } = useBoardApi();
   const { t } = useTranslation();
   const lastTask = useAppSelector((state) =>
     selectTaskById(state, column.tasks[taskIds.length - 1])
@@ -51,17 +50,17 @@ const CreateTaskPopover = ({ column, taskIds }: props) => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const response = await storeTask({
+    TaskApi.storeTask({
       ...values,
       seq: taskIds.length
         ? lastTask.seq + SequenceIncrementor
         : SequenceIncrementor,
+    }).then((response) => {
+      dispatch(addNewTask(response));
+      dispatch(
+        addColumnTask({ columnId: response.column_id, taskId: response.id })
+      );
     });
-
-    dispatch(addNewTask(response));
-    dispatch(
-      addColumnTask({ columnId: response.column_id, taskId: response.id })
-    );
   };
   return (
     <Popover>

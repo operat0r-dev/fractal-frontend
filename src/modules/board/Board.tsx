@@ -1,15 +1,21 @@
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
 import { Tag } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
-import useBoardApi from './api/boardApi';
+import ExpandableAside from '../core/components/ExpandableAside';
+import TaskApi from '../tasks/api/task.ts';
+import { setReduxUsers } from '../users/slices/usersSlice';
+import WorkspaceApi from '../workspaces/api/workspace.ts';
+import BoardApi from './api/board.ts';
 import BoardColumn from './components/BoardColumn';
 import CreateColumnPopover from './components/BoardColumn/CreateColumnPopover';
-import EditTaskSidebar from './components/EditTaskSidebar';
+import EditTaskSidebar from './components/QuickEditTask';
 import { SequenceIncrementor } from './constants/SequenceConstants';
+import { setSidebarOpen } from './slices/boardSlice';
 import {
   resetColumns,
   selectColumnById,
@@ -24,59 +30,36 @@ import {
   taskUpdated,
 } from './slices/tasksSlice';
 import { move, reorder } from './utils/boardUtils';
-import { setSidebarOpen } from './slices/boardSlice';
-import { useWorkspacesApi } from '../workspaces/api/workspacesApi';
-import { setReduxUsers } from '../users/slices/usersSlice';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const Board = () => {
-  const { id } = useParams<string>();
+  const { workspace_id, board_id } = useParams();
   const { t } = useTranslation();
-  const { index, updateTask } = useBoardApi();
-  const { getWorkspaceUsers } = useWorkspacesApi();
   const reduxColumns = useAppSelector(selectColumnIds);
   const reduxTasks = useAppSelector(selectAllTasksOrderedBySeq);
   const dispatch = useAppDispatch();
   const lastSeq = useAppSelector((state) =>
     selectColumnById(state, reduxColumns[reduxColumns.length - 1])
   )?.seq;
+  const [loading, setLoading] = useState(false);
+  if (!board_id) return;
 
   useEffect(() => {
     let isMounted = true;
-    if (!id) return;
 
-    const fetchUsers = async () => {
-      if (isMounted) {
-        const response = await getWorkspaceUsers(id);
-        dispatch(setReduxUsers(response));
-      }
-    };
+    if (isMounted) {
+      WorkspaceApi.getUsers(board_id).then((users) =>
+        dispatch(setReduxUsers(users))
+      );
+    }
 
-    const fetchBoards = async () => {
-      if (isMounted) {
-        const response = await index(id);
-        const columns = response.columns.map(({ tasks, ...column }) => ({
-          ...column,
-          tasks: tasks.map(({ id }) => id),
-        }));
-
-        const tasks = response.columns
-          .map((column) =>
-            column.tasks.map(({ labels, user, ...task }) => ({
-              ...task,
-              labels: labels.map(({ id }) => id),
-              user_id: user?.id || null,
-            }))
-          )
-          .flat();
-
+    if (isMounted) {
+      setLoading(true);
+      BoardApi.index(board_id).then(({ columns, tasks }) => {
         dispatch(setReduxColumns(columns));
         dispatch(setReduxTasks(tasks));
-      }
-    };
-
-    fetchUsers();
-    fetchBoards();
+        setLoading(false);
+      });
+    }
 
     return () => {
       isMounted = false;
@@ -84,7 +67,7 @@ const Board = () => {
       dispatch(resetColumns());
       dispatch(setSidebarOpen(false));
     };
-  }, [id]);
+  }, [board_id]);
 
   const onDragEnd = async (result: DropResult) => {
     const { source, destination } = result;
@@ -138,7 +121,7 @@ const Board = () => {
       })
     );
 
-    await updateTask(movedTask.id, { seq: movedTask.seq });
+    TaskApi.updateTask(movedTask.id, { seq: movedTask.seq });
   };
 
   const handleMove = async (
@@ -169,7 +152,7 @@ const Board = () => {
       })
     );
 
-    await updateTask(movedTask.id, {
+    TaskApi.updateTask(movedTask.id, {
       column_id: movedTask.column_id,
       seq: movedTask.seq,
     });
@@ -178,7 +161,7 @@ const Board = () => {
   return (
     <div className="relative flex flex-col h-full w-full overflow-hidden p-10">
       <div className="flex justify-end mb-4">
-        <Link to={`/board/${id}/labels`}>
+        <Link to={`/workspace/${workspace_id}/board/${board_id}/labels`}>
           <Button
             size="sm"
             variant="outline"
@@ -189,7 +172,7 @@ const Board = () => {
           </Button>
         </Link>
       </div>
-      {reduxColumns.length ? (
+      {!loading ? (
         <div className="flex flex-grow gap-4 w-full overflow-auto">
           <DragDropContext onDragEnd={onDragEnd}>
             <div className="flex h-full gap-4">
@@ -209,7 +192,9 @@ const Board = () => {
           <Skeleton className="w-[350px]" />
         </div>
       )}
-      <EditTaskSidebar />
+      <ExpandableAside>
+        <EditTaskSidebar />
+      </ExpandableAside>
     </div>
   );
 };

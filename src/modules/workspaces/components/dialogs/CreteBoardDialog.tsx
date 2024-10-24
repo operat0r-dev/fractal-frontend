@@ -25,7 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import useBoardApi from '@/modules/board/api/boardApi';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import BoardApi from '@/modules/board/api/board';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
@@ -38,12 +39,13 @@ import {
   selectCurrentWorkspace,
 } from '../../slices/workspacesSlice';
 import { useHandleError } from '../useError';
+import { Label } from '@/components/ui/label';
+import { predefinedColors } from '@/modules/board/constants/PredefinedColors';
 
 const CreateBoardDialog = () => {
   const [open, setOpen] = useState<boolean>();
   const [loading, setLoading] = useState<boolean>(false);
   const { t } = useTranslation();
-  const { storeBoard } = useBoardApi();
   const workspace = useAppSelector(selectCurrentWorkspace);
   const workspaces = useAppSelector(selectAllWorkspaces);
   const dispatch = useAppDispatch();
@@ -52,6 +54,7 @@ const CreateBoardDialog = () => {
     .object({
       workspace_id: z.number(),
       name: z.string({ message: t('form.required') }),
+      color: z.string(),
     })
     .superRefine(({ name }, ctx) => {
       if (!name.length) {
@@ -68,6 +71,7 @@ const CreateBoardDialog = () => {
     defaultValues: {
       workspace_id: workspace?.id,
       name: '',
+      color: predefinedColors[0].hsl,
     },
   });
 
@@ -75,18 +79,20 @@ const CreateBoardDialog = () => {
   const { handleError } = useHandleError();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      setLoading(true);
-      const response = await storeBoard(values);
-      dispatch(addReduxBoard(response));
-      setOpen(false);
-    } catch (error) {
-      handleError<z.infer<typeof formSchema>>(error, {
-        formErrorHandler: setError,
+    setLoading(true);
+
+    BoardApi.store(values)
+      .then((board) => {
+        dispatch(addReduxBoard(board));
+        setLoading(false);
+        setOpen(false);
+      })
+      .catch((error) => {
+        handleError<z.infer<typeof formSchema>>(error, {
+          formErrorHandler: setError,
+        });
+        setLoading(false);
       });
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleOpen = () => {
@@ -160,6 +166,37 @@ const CreateBoardDialog = () => {
                     </Select>
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="color"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('column.form.color')}</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="grid grid-cols-6 gap-2"
+                    >
+                      {predefinedColors.map((color, index) => (
+                        <div key={index}>
+                          <RadioGroupItem
+                            value={color.hsl}
+                            id={`color-${index}`}
+                            className="peer sr-only"
+                          />
+                          <Label
+                            htmlFor={`color-${index}`}
+                            className="flex h-4 w-4 rounded-md border-2 p-4 peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                            style={{ backgroundColor: color.hsl }}
+                          />
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </FormControl>
                 </FormItem>
               )}
             />

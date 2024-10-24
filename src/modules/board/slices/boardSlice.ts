@@ -1,14 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ApiLabel } from '../types/apiTypes';
 
 export interface BoardState {
   sidebarOpen: boolean;
-  labels: ApiLabel[];
 }
 
 const initialState: BoardState = {
-  sidebarOpen: false,
-  labels: [],
+  sidebarOpen: true,
 };
 
 export const boardSlice = createSlice({
@@ -18,12 +15,9 @@ export const boardSlice = createSlice({
     setSidebarOpen: (state, action: PayloadAction<boolean>) => {
       state.sidebarOpen = action.payload;
     },
-    setLabels: (state, action: PayloadAction<ApiLabel[]>) => {
-      state.labels = action.payload;
-    },
   },
 });
 
-export const { setSidebarOpen, setLabels } = boardSlice.actions;
+export const { setSidebarOpen } = boardSlice.actions;
 
 export default boardSlice.reducer;

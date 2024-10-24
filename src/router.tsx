@@ -7,7 +7,7 @@ import ProtectedRoutes from './utils/ProtectedRoutes.tsx';
 import Settings from './modules/settings/components/Settings.tsx';
 import Workspace from './modules/workspaces/Workspace.tsx';
 import Board from './modules/board/Board.tsx';
-import Labels from './modules/board/Labels.tsx';
+import Labels from './modules/labels/Labels.tsx';
 import Boards from './modules/workspaces/components/Boards.tsx';
 import Users from './modules/workspaces/components/Users.tsx';
 import Task from './modules/tasks/components/Task.tsx';
@@ -24,11 +24,11 @@ export const router = createBrowserRouter([
             element: <ProtectedRoutes />,
             children: [
               {
-                path: '/board/:id',
+                path: '/workspace/:workspace_id/board/:board_id',
                 element: <Board />,
               },
               {
-                path: '/board/:id/labels',
+                path: '/workspace/:workspace_id/board/:board_id/labels',
                 element: <Labels />,
               },
               {
@@ -50,7 +50,7 @@ export const router = createBrowserRouter([
                 ],
               },
               {
-                path: '/task/:id',
+                path: '/workspace/:workspace_id/board/:board_id/task/:task_id',
                 element: <Task />,
               },
             ],

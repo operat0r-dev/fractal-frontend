@@ -5,21 +5,20 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
-import { ReduxColumn } from '../types/stateTypes';
-import { ApiColumn } from '../types/apiTypes';
+import { Column } from '../domain';
 
-const columnsAdapter = createEntityAdapter<ReduxColumn>({
+const columnsAdapter = createEntityAdapter<Column>({
   sortComparer: (a, b) => a.seq - b.seq,
 });
 
-const initialState: EntityState<ReduxColumn, number> =
+const initialState: EntityState<Column, number> =
   columnsAdapter.getInitialState({});
 
 const columnsSlice = createSlice({
   name: 'columns',
   initialState,
   reducers: {
-    columnUpdated: (state, action: PayloadAction<ApiColumn>) => {
+    updateReduxColumn: (state, action: PayloadAction<Column>) => {
       const { id, color, name } = action.payload;
 
       const existingColumn = state.entities[id];
@@ -52,24 +51,18 @@ const columnsSlice = createSlice({
       const col = state.entities[action.payload.columnId];
       col.tasks = [...col.tasks, action.payload.taskId];
     },
-    setReduxColumns: (state, action: PayloadAction<ReduxColumn[]>) => {
+    setReduxColumns: (state, action: PayloadAction<Column[]>) => {
       columnsAdapter.setAll(state, action.payload);
     },
-    addNewColumn: (state, action: PayloadAction<ApiColumn>) => {
-      const column = action.payload;
-      const tasks = column.tasks.map(({ id }) => Number(id));
-
-      columnsAdapter.addOne(state, {
-        ...column,
-        tasks,
-      });
+    addNewColumn: (state, action: PayloadAction<Column>) => {
+      columnsAdapter.addOne(state, action.payload);
     },
     resetColumns: () => initialState,
   },
 });
 
 export const {
-  columnUpdated,
+  updateReduxColumn,
   setReduxColumns,
   addNewColumn,
   updateColumnsTasks,

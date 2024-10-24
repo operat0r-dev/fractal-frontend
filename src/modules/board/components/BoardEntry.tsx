@@ -8,10 +8,9 @@ import {
 import { selectUserById } from '@/modules/users/slices/usersSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { memo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { setSidebarOpen } from '../slices/boardSlice';
 import { selectTaskById, setCurrentTask } from '../slices/tasksSlice';
-import { ReduxTask } from '../types/stateTypes';
 import TaskBadgeWrapper from './BoardColumn/TaskBadgeWrapper';
 import { File } from 'lucide-react';
 
@@ -20,27 +19,28 @@ type BoardEntryProps = {
 };
 
 const BoardEntry = ({ taskId }: BoardEntryProps) => {
+  const { workspace_id, board_id } = useParams();
   const dispatch = useAppDispatch();
   const reduxTask = useAppSelector((state) => selectTaskById(state, taskId));
   const user = useAppSelector((state) =>
     reduxTask.user_id ? selectUserById(state, reduxTask.user_id) : null
   );
 
-  const showTaskDetails = (payload: ReduxTask) => {
-    dispatch(setCurrentTask(payload.id));
+  const showTaskDetails = (id: number) => {
+    dispatch(setCurrentTask(id));
     dispatch(setSidebarOpen(true));
   };
 
   return (
     <Card
       className="min-h-24 w-full board-entry rounded"
-      onClick={() => showTaskDetails(reduxTask)}
+      onClick={() => showTaskDetails(reduxTask.id)}
     >
       <CardHeader className="p-4">
         <CardTitle className="text-sm">
           <Link
             className="hover:underline"
-            to={`/task/${reduxTask.id}`}
+            to={`/workspace/${workspace_id}/board/${board_id}/task/${reduxTask.id}`}
           >
             {reduxTask.title}
           </Link>

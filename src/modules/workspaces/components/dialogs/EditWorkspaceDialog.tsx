@@ -30,7 +30,7 @@ import { memo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { useWorkspacesApi } from '../../api/workspacesApi';
+import WorkspaceApi from '../../api/workspace';
 
 const formSchema = z.object({
   name: z.string({ message: 'this field is required' }),
@@ -45,7 +45,6 @@ const defaultValues = {
 const EditWorkspaceDialog = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const { updateWorkspace } = useWorkspacesApi();
   const { toast } = useToast();
   const { t } = useTranslation();
   const workspace = useAppSelector(selectCurrentWorkspace);
@@ -57,26 +56,28 @@ const EditWorkspaceDialog = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      if (!workspace?.id) return;
-      setLoading(true);
-      const response = await updateWorkspace(String(workspace.id), values);
-      dispatch(updateReduxWorkspace(response));
+    if (!workspace?.id) return;
+    setLoading(true);
+    WorkspaceApi.updateWorkspace(String(workspace.id), values)
+      .then((response) => {
+        dispatch(updateReduxWorkspace(response));
 
-      toast({
-        variant: 'success',
-        description: t('workspace.edit.success'),
-      });
-      setLoading(false);
-      setOpen(false);
-    } catch (error) {
-      if (error instanceof Error) {
         toast({
-          variant: 'destructive',
-          description: t('workspace.error.changeName'),
+          variant: 'success',
+          description: t('workspace.edit.success'),
         });
-      }
-    }
+        setLoading(false);
+        setOpen(false);
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          toast({
+            variant: 'destructive',
+            description: t('workspace.error.changeName'),
+          });
+          setLoading(false);
+        }
+      });
   };
 
   const handleOpen = () => {

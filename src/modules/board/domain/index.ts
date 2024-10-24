@@ -1,4 +1,4 @@
-export interface ReduxColumn {
+export interface Column {
   id: number;
   board_id: number;
   name: string;
@@ -7,7 +7,7 @@ export interface ReduxColumn {
   color: string;
 }
 
-export interface ReduxTask {
+export interface Task {
   id: number;
   column_id: number;
   title: string;

@@ -1,5 +1,5 @@
 import { useAppSelector } from '@/store/hooks';
-import { selectLabelById } from '../../slices/labelsSlice';
+import { selectLabelById } from '../../../labels/slices/labelsSlice';
 import TaskBadge from '../../../../components/custom/task-badge';
 import { memo } from 'react';
 

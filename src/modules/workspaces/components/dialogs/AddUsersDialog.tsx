@@ -11,17 +11,16 @@ import {
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { useWorkspacesApi } from '../../api/workspacesApi';
+import WorkspaceApi from '../../api/workspace';
 import { MultiSelect } from '@/components/custom/multi-select';
 import { useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import useUsersApi from '@/modules/users/api/usersApi';
+import useUsersApi from '@/modules/users/api/user';
 
 const AddUsersDialog = () => {
   const [users, setUsers] = useState<{ value: string; label: string }[]>([]);
   const { t } = useTranslation();
-  const { inviteUsers } = useWorkspacesApi();
   const { getUsers } = useUsersApi();
   const usersToInvite = useRef<number[]>([]);
   const { id } = useParams();
@@ -68,21 +67,21 @@ const AddUsersDialog = () => {
 
   const handleSubmit = async () => {
     if (!id) return;
-    try {
-      await inviteUsers(id, { ids: usersToInvite.current });
-
-      toast({
-        description: t('workspace.addMembers.success'),
-        variant: 'success',
-      });
-    } catch (error) {
-      if (error instanceof Error) {
+    WorkspaceApi.inviteUsers(id, { ids: usersToInvite.current })
+      .then(() =>
         toast({
-          description: t('workspace.addMembers.error'),
-          variant: 'destructive',
-        });
-      }
-    }
+          description: t('workspace.addMembers.success'),
+          variant: 'success',
+        })
+      )
+      .catch((error) => {
+        if (error instanceof Error) {
+          toast({
+            description: t('workspace.addMembers.error'),
+            variant: 'destructive',
+          });
+        }
+      });
   };
 
   return (

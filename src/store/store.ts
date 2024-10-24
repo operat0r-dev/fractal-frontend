@@ -4,7 +4,7 @@ import workspacesReducer from '@/modules/workspaces/slices/workspacesSlice';
 import boardReducer from '@/modules/board/slices/boardSlice';
 import columnsReducer from '@/modules/board/slices/columnsSlice';
 import tasksReducer from '@/modules/board/slices/tasksSlice';
-import labelsReducer from '@/modules/board/slices/labelsSlice';
+import labelsReducer from '@/modules/labels/slices/labelsSlice';
 import boardsReducer from '@/modules/workspaces/slices/boardsSlice';
 import usersReducer from '@/modules/users/slices/usersSlice';
 

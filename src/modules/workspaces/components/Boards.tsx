@@ -8,6 +8,7 @@ import CreateBoardDialog from './dialogs/CreteBoardDialog';
 const Boards = () => {
   const { t } = useTranslation();
   const boards = useAppSelector(selectAllBoards);
+  const currentWorkspace = useAppSelector((state) => state.workspaces.current);
 
   if (!boards.length) {
     return (
@@ -29,7 +30,7 @@ const Boards = () => {
           <Link
             className="border text-black rounded-md p-4 font-bold w-full h-[100px]"
             key={board.id}
-            to={`/board/${board.id}`}
+            to={`/workspace/${currentWorkspace?.id}/board/${board.id}`}
             style={{ backgroundColor: board.color }}
           >
             {board.name}

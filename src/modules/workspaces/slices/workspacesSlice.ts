@@ -6,15 +6,13 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
-import { ReduxWorkspace } from '../types/stateTypes';
-import { Workspace } from '../types/types';
+import { Workspace, CurrentWorkspace } from '../domain';
 
-export interface WorkspacesSliceState
-  extends EntityState<ReduxWorkspace, number> {
-  current: ReduxWorkspace | undefined;
+export interface WorkspacesSliceState extends EntityState<Workspace, number> {
+  current: CurrentWorkspace | undefined;
 }
 
-const workspacesAdapter = createEntityAdapter<ReduxWorkspace>();
+const workspacesAdapter = createEntityAdapter<Workspace>();
 
 const initialState: WorkspacesSliceState = workspacesAdapter.getInitialState({
   current: undefined,
@@ -24,10 +22,10 @@ export const workspacesSlice = createSlice({
   name: 'workspaces',
   initialState,
   reducers: {
-    setReduxWorkspaces: (state, action: PayloadAction<ReduxWorkspace[]>) => {
+    setReduxWorkspaces: (state, action: PayloadAction<Workspace[]>) => {
       workspacesAdapter.setAll(state, action.payload);
     },
-    setCurrentWorkspace: (state, action: PayloadAction<ReduxWorkspace>) => {
+    setCurrentWorkspace: (state, action: PayloadAction<CurrentWorkspace>) => {
       state.current = action.payload;
     },
     switchWorkspaces: (
