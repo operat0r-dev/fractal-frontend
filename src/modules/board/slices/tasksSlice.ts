@@ -6,16 +6,15 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
-import { ReduxTask } from '../types/stateTypes';
-import { ApiTask } from '@/modules/tasks/types/apiTypes';
-import { ReduxTask } from '../types/stateTypes';
+import { Task } from '../domain';
+import { TaskDto } from '@/modules/tasks/api/dto';
 
-const tasksAdapter = createEntityAdapter<ReduxTask>({
+const tasksAdapter = createEntityAdapter<Task>({
   sortComparer: (a, b) => a.seq - b.seq,
 });
 
-export interface TasksSliceState extends EntityState<ReduxTask, number> {
-  currentTask: ReduxTask | null;
+export interface TasksSliceState extends EntityState<Task, number> {
+  currentTask: Task | null;
 }
 
 const initialState: TasksSliceState = tasksAdapter.getInitialState({
@@ -26,7 +25,7 @@ const tasksSlice = createSlice({
   name: 'tasks',
   initialState,
   reducers: {
-    taskUpdated: (state, action: PayloadAction<ReduxTask>) => {
+    taskUpdated: (state, action: PayloadAction<Task>) => {
       const { id, title, column_id, seq } = action.payload;
 
       const existingTask = state.entities[id];
@@ -37,10 +36,10 @@ const tasksSlice = createSlice({
         existingTask.seq = seq;
       }
     },
-    setReduxTasks: (state, action: PayloadAction<ReduxTask[]>) => {
+    setReduxTasks: (state, action: PayloadAction<Task[]>) => {
       tasksAdapter.setAll(state, action.payload);
     },
-    addNewTask: (state, action: PayloadAction<ApiTask>) => {
+    addNewTask: (state, action: PayloadAction<TaskDto>) => {
       const task = action.payload;
       const labels = task.labels.map(({ id }) => id);
 
@@ -49,7 +48,7 @@ const tasksSlice = createSlice({
     setCurrentTask: (state, action: PayloadAction<number>) => {
       state.currentTask = state.entities[action.payload];
     },
-    updateTask: (state, action: PayloadAction<ApiTask>) => {
+    updateTask: (state, action: PayloadAction<TaskDto>) => {
       const { id, labels, user } = action.payload;
       const newLabels = labels.map(({ id }) => id);
 

@@ -16,12 +16,11 @@ import { MultiSelect } from '@/components/custom/multi-select';
 import { useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import useUsersApi from '@/modules/users/api/user';
+import UserApi from '@/modules/users/api/user';
 
 const AddUsersDialog = () => {
   const [users, setUsers] = useState<{ value: string; label: string }[]>([]);
   const { t } = useTranslation();
-  const { getUsers } = useUsersApi();
   const usersToInvite = useRef<number[]>([]);
   const { id } = useParams();
   const { toast } = useToast();
@@ -51,7 +50,7 @@ const AddUsersDialog = () => {
       return;
     }
 
-    const response = (await getUsers(query)).map((user) => {
+    const response = (await UserApi.getMany(query)).map((user) => {
       return {
         value: String(user.id),
         label: user.email,
@@ -67,7 +66,7 @@ const AddUsersDialog = () => {
 
   const handleSubmit = async () => {
     if (!id) return;
-    WorkspaceApi.inviteUsers(id, { ids: usersToInvite.current })
+    WorkspaceApi.invite(id, { ids: usersToInvite.current })
       .then(() =>
         toast({
           description: t('workspace.addMembers.success'),

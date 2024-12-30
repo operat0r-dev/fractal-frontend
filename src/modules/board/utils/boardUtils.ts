@@ -1,8 +1,8 @@
-import { ReduxTask } from '../types/stateTypes';
+import { Task } from '../domain';
 import { SequenceIncrementor } from '../constants/SequenceConstants';
 
 export const calculateSequenceNumber = (
-  tasks: ReduxTask[],
+  tasks: Task[],
   index: number
 ): number => {
   if (index === 0 && tasks.length === 1) {
@@ -19,11 +19,11 @@ export const calculateSequenceNumber = (
 };
 
 export const reorder = (
-  list: ReduxTask[],
+  list: Task[],
   columnId: number,
   sourceIndex: number,
   destinationIndex: number
-): ReduxTask => {
+): Task => {
   const sourceClone = [...list.filter((item) => item.column_id === columnId)];
 
   const [movedTask] = sourceClone.splice(sourceIndex, 1);
@@ -35,12 +35,12 @@ export const reorder = (
 };
 
 export const move = (
-  list: ReduxTask[],
+  list: Task[],
   sourceColumnId: number,
   destinationColumnId: number,
   sourceIndex: number,
   destinationIndex: number
-): ReduxTask => {
+): Task => {
   const sourceClone = [
     ...list.filter((item) => item.column_id === sourceColumnId),
   ];

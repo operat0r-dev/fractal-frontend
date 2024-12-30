@@ -27,6 +27,10 @@ export default [
     },
   },
   {
-    ignores: ['**/components/ui/*'],
+    ignores: [
+      '**/components/ui/*',
+      '**/components/custom/*',
+      '**/src/hooks/use-toast.ts',
+    ],
   },
 ];

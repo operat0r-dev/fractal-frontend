@@ -56,7 +56,7 @@ const AssigneeSelect = ({
               No one &nbsp; - &nbsp;
               <button
                 className="underline text-[#9747FF]"
-                onClick={() => onValueChange(user?.id)}
+                onClick={() => onValueChange(user ? user.id : null)}
               >
                 assign yourself
               </button>

@@ -58,7 +58,7 @@ const EditWorkspaceDialog = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!workspace?.id) return;
     setLoading(true);
-    WorkspaceApi.updateWorkspace(String(workspace.id), values)
+    WorkspaceApi.update(String(workspace.id), values)
       .then((response) => {
         dispatch(updateReduxWorkspace(response));
 
@@ -69,7 +69,7 @@ const EditWorkspaceDialog = () => {
         setLoading(false);
         setOpen(false);
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         if (error instanceof Error) {
           toast({
             variant: 'destructive',
