@@ -14,4 +14,4 @@ jobs:
     - name: Pull latest changes
       uses: actions/checkout@v4
     - name: Install dependencies
-      run: cd /home/jwysocki/fractal-frontend && yarn install
+      run: cd ${{ vars.FRONTEND_PATH }} && yarn install
