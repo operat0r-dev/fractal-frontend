@@ -11,7 +11,7 @@ jobs:
   deploy-test:
     runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v4
     - name: Pull latest changes
+      uses: actions/checkout@v4
     - name: Install dependencies
       run: cd /home/jwysocki/fractal-frontend && yarn install
