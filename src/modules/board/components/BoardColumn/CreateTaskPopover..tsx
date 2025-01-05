@@ -21,11 +21,11 @@ import { SequenceIncrementor } from '@/modules/board/constants/SequenceConstants
 import { useTranslation } from 'react-i18next';
 import { addNewTask, selectTaskById } from '../../slices/tasksSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { ReduxColumn } from '../../types/stateTypes';
+import { Column } from '../../domain/index';
 import { addColumnTask } from '../../slices/columnsSlice';
 
 type props = {
-  column: ReduxColumn;
+  column: Column;
   taskIds: number[];
 };
 

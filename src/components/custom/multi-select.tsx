@@ -174,6 +174,7 @@ export const MultiSelect = React.forwardRef<
                         className="m-1"
                         key={value}
                         color={color}
+                        //@ts-ignore
                         name={option.label}
                         onClick={(event) => event.stopPropagation()}
                       >

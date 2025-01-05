@@ -63,7 +63,7 @@ const CreateWorkspaceDialog = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
 
-    WorkspaceApi.createWorkspace(values)
+    WorkspaceApi.store(values)
       .then((response) => {
         dispatch(setReduxWorkspaces([response, ...workspaces]));
 
@@ -74,7 +74,7 @@ const CreateWorkspaceDialog = ({
         setLoading(false);
         setOpen(false);
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         if (error instanceof Error) {
           toast({
             description: t('workspace.error.create'),

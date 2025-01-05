@@ -14,7 +14,6 @@ const getListStyle = (isDraggingOver: boolean) => ({
 });
 
 const getItemStyle = (draggableStyle: DraggableStyle | undefined) => ({
-  userSelect: 'none',
   ...draggableStyle,
 });
 
@@ -44,7 +43,10 @@ const DroppableArea = ({ collapsed, columnId, taskIds }: props) => {
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    style={getItemStyle(provided.draggableProps.style)}
+                    style={{
+                      ...getItemStyle(provided.draggableProps.style),
+                      userSelect: 'none',
+                    }}
                   >
                     <BoardEntry taskId={id} />
                   </div>

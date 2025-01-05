@@ -8,7 +8,10 @@ interface TaskBagdeProps extends BadgeProps {
 }
 
 const hslToHsla = (hsl: string, alpha: number) => {
-  const hslArray = hsl.match(/\d+/g).map(Number);
+  const match = hsl.match(/\d+/g);
+  if (!match) return;
+  
+  const hslArray = match.map(Number);
 
   return `hsla(${hslArray[0]}, ${hslArray[1]}%, ${hslArray[2]}%, ${alpha})`;
 };
