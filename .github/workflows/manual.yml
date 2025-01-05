@@ -13,4 +13,5 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Pull latest changes
-      run: yarn install
+    - name: Install dependencies
+      run: cd /home/jwysocki/fractal-frontend && yarn install
