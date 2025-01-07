@@ -12,11 +12,7 @@ jobs:
     - name: Pull latest changes
       run:
         | 
-        git config --global credential.helper store
-        echo "https://${{ secrets.RUNNER_PAT }}@github.com" > ~/.git-credentials
         cd ${{ vars.FRONTEND_PATH }}
         git checkout master
         git reset --hard HEAD
         git pull origin master
-    - name: Cleanup credentials
-      run: rm -f ~/.git-credentials
