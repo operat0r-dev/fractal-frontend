@@ -7,5 +7,6 @@
       "source.fixAll.eslint": "explicit",
     },
     "eslint.alwaysShowStatus": true,
-    "prettier.requireConfig": true,  
+    "prettier.requireConfig": true,
+    "typescript.tsdk": "node_modules/typescript/lib",
 }
