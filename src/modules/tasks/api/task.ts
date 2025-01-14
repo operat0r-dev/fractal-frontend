@@ -1,6 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { ApiResponse } from '@/types';
-import apiClient from '@/apiClient';
+import { apiClient, ApiResponse } from 'modules/core/apiClient';
 import { TaskDto } from './dto';
 import { dtoToTask, dtoToLabels } from './transform';
 

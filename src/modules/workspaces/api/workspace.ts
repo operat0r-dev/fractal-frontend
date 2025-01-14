@@ -1,6 +1,5 @@
-import apiClient from '@/apiClient';
+import { apiClient, ApiResponse } from 'modules/core/apiClient';
 import { AxiosResponse } from 'axios';
-import { ApiResponse } from '@/types';
 import { AccessForbiddenError } from '@/modules/core/errors/errors';
 import { WorkspaceDto, CurrentWorkspaceDto } from './dto';
 import { UserDto } from '@/modules/users/api/dto';

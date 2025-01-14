@@ -1,9 +1,15 @@
 import axios, { AxiosResponse } from 'axios';
-import { store } from './store/store';
-import { setTokenData, logout } from './modules/auth/slices/auth';
-import { ApiResponse } from './types';
-import { JWTTokenResponse } from './modules/auth/interfaces/types';
+import { store } from '@/store/store';
+import { setTokenData, logout } from 'modules/auth/slices/auth';
+import { JWTTokenResponse } from 'modules/auth/interfaces/types';
 import { toast } from '@/hooks/use-toast';
+
+export interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message?: string;
+  invalidFields?: { [key: string]: string[] };
+}
 
 export const apiClient = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}${import.meta.env.VITE_API_URL_PREFIX}`,
@@ -61,5 +67,3 @@ apiClient.interceptors.response.use(
     return error.response;
   }
 );
-
-export default apiClient;

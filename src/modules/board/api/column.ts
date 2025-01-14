@@ -1,5 +1,4 @@
-import apiClient from '@/apiClient';
-import { ApiResponse } from '@/types';
+import { apiClient, ApiResponse } from 'modules/core/apiClient';
 import { AxiosResponse } from 'axios';
 import { ValidationError } from '@/modules/core/errors/errors';
 import { ColumnDto } from './dto';

@@ -1,4 +1,4 @@
-import apiClient from '@/apiClient';
+import { apiClient, ApiResponse } from 'modules/core/apiClient';
 import {
   RegisterRequest,
   LoginRequest,
@@ -6,7 +6,6 @@ import {
   User,
 } from './interfaces/types';
 import { AxiosResponse } from 'axios';
-import { ApiResponse } from '@/types';
 import { useAppDispatch } from '@/store/hooks';
 import { setTokenData, setUser } from './slices/auth';
 

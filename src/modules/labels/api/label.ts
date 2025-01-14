@@ -1,5 +1,4 @@
-import apiClient from '@/apiClient';
-import { ApiResponse } from '@/types';
+import { apiClient, ApiResponse } from 'modules/core/apiClient';
 import { AxiosResponse } from 'axios';
 import { LabelDto } from '../api/dto';
 import { TaskDto } from '@/modules/tasks/api/dto';
