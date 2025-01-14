@@ -3,15 +3,14 @@ import { ApiResponse } from '@/types';
 import { AxiosResponse } from 'axios';
 import { CreateBoardRequest } from '@/modules/board/types/Board';
 import { ValidationError } from '@/modules/core/errors/errors';
-import { BoardDto } from './dto';
+import { KanbanBoardDto, BoardDto } from './dto';
 import { dtoToBoard, dtoToColumns, dtoToTasks } from './transform';
 
 const index = async (id: string) => {
-  const response: AxiosResponse<ApiResponse<BoardDto>> = await apiClient.get(
-    `/boards/${id}`
-  );
+  const response: AxiosResponse<ApiResponse<KanbanBoardDto>> =
+    await apiClient.get(`/boards/${id}`);
 
-  const apiResponse: ApiResponse<BoardDto> = response.data;
+  const apiResponse: ApiResponse<KanbanBoardDto> = response.data;
 
   if (!apiResponse.success) {
     throw new Error(apiResponse.message || 'wiadomosc z frontu');

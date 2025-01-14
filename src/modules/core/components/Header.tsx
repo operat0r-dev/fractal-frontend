@@ -6,7 +6,7 @@ import { useState } from 'react';
 
 const Header = () => {
   const [open, setOpen] = useState<boolean>(false);
-  const user = useAppSelector((state) => state.authData.user);
+  const user = useAppSelector((state) => state.auth.user);
 
   return (
     <div className="flex justify-between items-center fixed top-0 w-full h-12 border-b bg-background py-2 px-4">

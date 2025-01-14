@@ -4,8 +4,11 @@ export interface BoardDto {
   id: number;
   name: string;
   workspace_id: number;
-  columns: ColumnDto[];
   color: string;
+}
+
+export interface KanbanBoardDto extends BoardDto {
+  columns: ColumnDto[];
 }
 
 export interface ColumnDto {

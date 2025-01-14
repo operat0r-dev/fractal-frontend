@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { z } from 'zod';
 import TaskBadge from '../../components/custom/task-badge';
-import { ReduxLabel } from '../workspaces/types/stateTypes';
 import LabelApi from '@/modules/labels/api/label';
 import { predefinedColors } from '../board/constants/PredefinedColors';
 import { Label as TaskLabel } from './domain';
@@ -137,7 +136,7 @@ const Labels = () => {
       });
   };
 
-  const openDialog = (payload: ReduxLabel) => {
+  const openDialog = (payload: TaskLabel) => {
     form.reset({
       ...payload,
       label_id: payload.id,
@@ -158,7 +157,7 @@ const Labels = () => {
     }
   };
 
-  const columns: ColumnDef<ReduxLabel>[] = [
+  const columns: ColumnDef<TaskLabel>[] = [
     {
       accessorKey: 'name',
       header: 'Etykieta',

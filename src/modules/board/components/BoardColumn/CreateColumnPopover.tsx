@@ -33,7 +33,7 @@ type props = {
 
 const CreateColumnPopover = ({ newColumnSeq }: props) => {
   const { t } = useTranslation();
-  const { id } = useParams<string>();
+  const { board_id } = useParams<string>();
   const [open, setOpen] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const { handleError } = useHandleError();
@@ -55,7 +55,7 @@ const CreateColumnPopover = ({ newColumnSeq }: props) => {
     });
 
   const defaultValues = {
-    board_id: Number(id),
+    board_id: Number(board_id),
     name: '',
     color: predefinedColors[0].hsl,
   };

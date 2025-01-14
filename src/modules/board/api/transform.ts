@@ -1,26 +1,24 @@
-import { BoardDto, ColumnDto } from './dto';
+import { BoardDto, ColumnDto, KanbanBoardDto } from './dto';
+import { Board, Column, Task } from '../domain';
 
-export const dtoToBoard = (dto: BoardDto) => {
-  return {
-    ...dto,
-    columns: dto?.columns.map(({ id }) => id),
-  };
+export const dtoToBoard = (dto: BoardDto): Board => {
+  return dto;
 };
 
-export const dtoToColumns = (dto: BoardDto) => {
+export const dtoToColumns = (dto: KanbanBoardDto): Column[] => {
   return dto.columns.map((column) => {
     return { ...column, tasks: column.tasks.map(({ id }) => id) };
   });
 };
 
-export const dtoToColumn = (dto: ColumnDto) => {
+export const dtoToColumn = (dto: ColumnDto): Column => {
   return {
     ...dto,
     tasks: dto.tasks.map(({ id }) => id),
   };
 };
 
-export const dtoToTasks = (dto: BoardDto) => {
+export const dtoToTasks = (dto: KanbanBoardDto): Task[] => {
   return dto.columns
     .map(({ tasks }) =>
       tasks.map(({ labels, user, ...task }) => ({

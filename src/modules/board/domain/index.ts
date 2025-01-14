@@ -1,3 +1,10 @@
+export interface Board {
+  id: number;
+  name: string;
+  workspace_id: number;
+  color: string;
+}
+
 export interface Column {
   id: number;
   board_id: number;

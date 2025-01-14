@@ -26,7 +26,7 @@ const AssigneeSelect = ({
     defaultValue ? selectUserById(state, defaultValue) : undefined
   );
   const users = useAppSelector(selectAllUsers);
-  const { user } = useAppSelector((state) => state.authData);
+  const { user } = useAppSelector((state) => state.auth);
 
   return (
     <Popover

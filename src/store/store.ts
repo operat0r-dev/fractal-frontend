@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '@/modules/auth/slices/auth';
 import workspacesReducer from '@/modules/workspaces/slices/workspacesSlice';
-import boardReducer from '@/modules/board/slices/boardSlice';
+import kanbanBoardReducer from '@/modules/board/slices/kanbanBoardSlice';
 import columnsReducer from '@/modules/board/slices/columnsSlice';
 import tasksReducer from '@/modules/board/slices/tasksSlice';
 import labelsReducer from '@/modules/labels/slices/labelsSlice';
@@ -10,9 +10,9 @@ import usersReducer from '@/modules/users/slices/usersSlice';
 
 export const store = configureStore({
   reducer: {
-    authData: authReducer,
+    auth: authReducer,
     workspaces: workspacesReducer,
-    board: boardReducer,
+    kanbanBoard: kanbanBoardReducer,
     columns: columnsReducer,
     tasks: tasksReducer,
     labels: labelsReducer,

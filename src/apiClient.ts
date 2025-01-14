@@ -6,7 +6,7 @@ import { JWTTokenResponse } from './modules/auth/interfaces/types';
 import { toast } from '@/hooks/use-toast';
 
 export const apiClient = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api`,
+  baseURL: `${import.meta.env.VITE_API_URL}${import.meta.env.VITE_API_URL_PREFIX}`,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -14,7 +14,7 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config) => {
-    const { tokenData } = store.getState().authData;
+    const { tokenData } = store.getState().auth;
 
     if (tokenData) {
       config.headers['Authorization'] = `Bearer ${tokenData.access_token}`;

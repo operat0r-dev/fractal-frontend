@@ -6,7 +6,7 @@ import { JWTTokenResponse, User } from './modules/auth/interfaces/types';
 import { Toaster } from './components/ui/toaster';
 
 const App = () => {
-  const { tokenData, user } = useAppSelector((state) => state.authData);
+  const { tokenData, user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
   if (!tokenData) {
