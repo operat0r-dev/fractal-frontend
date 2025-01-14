@@ -18,10 +18,10 @@ export const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        element: <AppLayout />,
+        element: <ProtectedRoutes />,
         children: [
           {
-            element: <ProtectedRoutes />,
+            element: <AppLayout />,
             children: [
               {
                 path: '/workspace/:workspace_id/board/:board_id',

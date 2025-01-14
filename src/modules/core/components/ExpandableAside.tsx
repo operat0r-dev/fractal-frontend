@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { setSidebarOpen } from '@/modules/board/slices/boardSlice';
+import { setSidebarOpen } from '@/modules/board/slices/kanbanBoardSlice';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { X } from 'lucide-react';
 import { ReactNode } from 'react';
@@ -10,7 +10,7 @@ type ExpandableAsideProps = {
 };
 
 const ExpandableAside = ({ children }: ExpandableAsideProps) => {
-  const { sidebarOpen } = useAppSelector((state) => state.board);
+  const { sidebarOpen } = useAppSelector((state) => state.kanbanBoard);
   const dispatch = useAppDispatch();
 
   return (

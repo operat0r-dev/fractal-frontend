@@ -9,7 +9,7 @@ import { selectUserById } from '@/modules/users/slices/usersSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { memo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { setSidebarOpen } from '../slices/boardSlice';
+import { setSidebarOpen } from '../slices/kanbanBoardSlice';
 import { selectTaskById, setCurrentTask } from '../slices/tasksSlice';
 import TaskBadgeWrapper from './BoardColumn/TaskBadgeWrapper';
 import { File } from 'lucide-react';

@@ -15,7 +15,7 @@ import BoardColumn from './components/BoardColumn';
 import CreateColumnPopover from './components/BoardColumn/CreateColumnPopover';
 import EditTaskSidebar from './components/QuickEditTask';
 import { SequenceIncrementor } from './constants/SequenceConstants';
-import { setSidebarOpen } from './slices/boardSlice';
+import { setSidebarOpen } from './slices/kanbanBoardSlice.ts';
 import {
   resetColumns,
   selectColumnById,
@@ -37,9 +37,10 @@ const Board = () => {
   const reduxColumns = useAppSelector(selectColumnIds);
   const reduxTasks = useAppSelector(selectAllTasksOrderedBySeq);
   const dispatch = useAppDispatch();
-  const lastSeq = useAppSelector((state) =>
-    selectColumnById(state, reduxColumns[reduxColumns.length - 1])
-  )?.seq;
+  const lastSeq =
+    useAppSelector((state) =>
+      selectColumnById(state, reduxColumns[reduxColumns.length - 1])
+    )?.seq || 0;
   const [loading, setLoading] = useState(false);
   if (!board_id) return;
 
@@ -47,13 +48,12 @@ const Board = () => {
     let isMounted = true;
 
     if (isMounted) {
+      setLoading(true);
+
       WorkspaceApi.getUsers(board_id).then((users) =>
         dispatch(setReduxUsers(users))
       );
-    }
 
-    if (isMounted) {
-      setLoading(true);
       BoardApi.index(board_id).then(({ columns, tasks }) => {
         dispatch(setReduxColumns(columns));
         dispatch(setReduxTasks(tasks));

@@ -1,14 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface BoardState {
+export interface KanbanBoardState {
   sidebarOpen: boolean;
 }
 
-const initialState: BoardState = {
+const initialState: KanbanBoardState = {
   sidebarOpen: true,
 };
 
-export const boardSlice = createSlice({
+export const kanbanBoardSlice = createSlice({
   name: 'board',
   initialState,
   reducers: {
@@ -18,6 +18,6 @@ export const boardSlice = createSlice({
   },
 });
 
-export const { setSidebarOpen } = boardSlice.actions;
+export const { setSidebarOpen } = kanbanBoardSlice.actions;
 
-export default boardSlice.reducer;
+export default kanbanBoardSlice.reducer;

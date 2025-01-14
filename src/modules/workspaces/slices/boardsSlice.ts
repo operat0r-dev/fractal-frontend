@@ -5,38 +5,29 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
-import { ReduxBoard } from '../types/stateTypes';
+import { Board } from '@/modules/board/domain';
 
-const boardsAdapter = createEntityAdapter<ReduxBoard>();
+const boardsAdapter = createEntityAdapter<Board>();
 
-const initialState: EntityState<ReduxBoard, number> =
-  boardsAdapter.getInitialState({});
+const initialState: EntityState<Board, number> = boardsAdapter.getInitialState(
+  {}
+);
 
 const boardsSlice = createSlice({
-  name: 'columns',
+  name: 'boards',
   initialState,
   reducers: {
-    udpateBoard: (state, action: PayloadAction<ReduxBoard>) => {
-      const { id, name, description } = action.payload;
-
-      const existingColumn = state.entities[id];
-
-      if (existingColumn) {
-        existingColumn.name = name;
-        existingColumn.description = description;
-      }
-    },
-    setReduxBoards: (state, action: PayloadAction<ReduxBoard[]>) => {
+    setReduxBoards: (state, action: PayloadAction<Board[]>) => {
       boardsAdapter.setAll(state, action.payload);
     },
-    addReduxBoard: (state, action: PayloadAction<ReduxBoard>) => {
+    addReduxBoard: (state, action: PayloadAction<Board>) => {
       boardsAdapter.addOne(state, action.payload);
     },
     resetBoards: () => initialState,
   },
 });
 
-export const { addReduxBoard, udpateBoard, setReduxBoards, resetBoards } =
+export const { setReduxBoards, addReduxBoard, resetBoards } =
   boardsSlice.actions;
 
 export default boardsSlice.reducer;

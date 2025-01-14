@@ -13,7 +13,7 @@ const formSchema = z.object({
 });
 
 const Settings = () => {
-  const { user } = useAppSelector((state) => state.authData);
+  const { user } = useAppSelector((state) => state.auth);
   const { updateUser } = useSettingsApi();
 
   const form = useForm<z.infer<typeof formSchema>>({

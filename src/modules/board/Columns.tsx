@@ -1,10 +1,10 @@
 import { ColumnDef } from '@tanstack/react-table';
 
-import { ReduxLabel } from '../workspaces/types/stateTypes';
+import { Label } from 'modules/labels/domain/index';
 import TaskBadge from '@/components/custom/task-badge';
 import { Button } from '@/components/ui/button';
 
-export const columns: ColumnDef<ReduxLabel>[] = [
+export const columns: ColumnDef<Label>[] = [
   {
     accessorKey: 'name',
     header: 'Etykieta',
