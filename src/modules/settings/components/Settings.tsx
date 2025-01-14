@@ -5,7 +5,9 @@ import { Input } from '@/components/ui/input';
 import { z } from 'zod';
 import { useAppSelector } from '@/store/hooks';
 import { Button } from '@/components/ui/button';
-import { useSettingsApi } from '@/modules/settings/SettingsApi';
+import SettingsApi from '@/modules/settings/api/settings';
+import { useAppDispatch } from '@/store/hooks';
+import { setUser } from '@/modules/auth/slices/auth';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Zła nazwa użytkownika' }),
@@ -14,7 +16,7 @@ const formSchema = z.object({
 
 const Settings = () => {
   const { user } = useAppSelector((state) => state.auth);
-  const { updateUser } = useSettingsApi();
+  const dispatch = useAppDispatch();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -25,16 +27,18 @@ const Settings = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      await updateUser(values);
-    } catch (error) {
-      if (error instanceof Error) {
-        form.setError('email', {
-          type: 'validate',
-          message: 'Email jest zajęty',
-        });
-      }
-    }
+    await SettingsApi.updateUser(values)
+      .then((response) => {
+        dispatch(setUser(response));
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          form.setError('email', {
+            type: 'validate',
+            message: 'Email jest zajęty',
+          });
+        }
+      });
   };
 
   return (
