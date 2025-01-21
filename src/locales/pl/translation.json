@@ -76,9 +76,16 @@
             "board": "Utwórz tablicę",
             "column": "Utwórz kolumnę"
         },
+        "edit": {
+            "title": "Edytuj tablicę",
+            "description": "Tutaj możesz zmienić nazwę oraz kolor tablicy",
+            "success": "Pomyślnie edytowano tablicę",
+            "error": "Podczas edycji tablicy wystąpił błąd"
+        },
         "form": {
             "name": "Nazwa",
-            "workspace": "Obszar roboczy"
+            "workspace": "Obszar roboczy",
+            "color": "Kolor"
         },
         "error": {
             "createColumn": "Podczas dodwania kolumny wystapił błąd"

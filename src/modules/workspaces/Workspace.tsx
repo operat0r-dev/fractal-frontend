@@ -11,21 +11,21 @@ import { setReduxBoards } from './slices/boardsSlice';
 import { setCurrentWorkspace } from './slices/workspacesSlice';
 
 const Workspace = () => {
-  const { id } = useParams();
+  const { workspace_id } = useParams();
   const { handleError } = useHandleError();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (!id) return;
+    if (!workspace_id) return;
 
-    WorkspaceApi.getOne(id)
+    WorkspaceApi.getOne(workspace_id)
       .then(({ workspace, boards, users }) => {
         dispatch(setCurrentWorkspace(workspace));
         dispatch(setReduxUsers(users));
         dispatch(setReduxBoards(boards));
       })
       .catch((error) => handleError(error));
-  }, [id]);
+  }, [workspace_id]);
 
   return (
     <div className="flex h-full">
