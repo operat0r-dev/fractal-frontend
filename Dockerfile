@@ -1,15 +1,8 @@
-FROM node:21.4.0
-
+FROM node:20-alpine
 WORKDIR /app
-
-COPY . /app
-
-ENV NODE_ENV=production
-
-RUN npm install serve -g
-
-RUN npm install --include=dev
-
+COPY package.json yarn.lock ./
+RUN yarn global add serve
+RUN yarn install
+COPY . ./
 EXPOSE 5173
-
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD ["yarn", "dev", "--", "--host"]
