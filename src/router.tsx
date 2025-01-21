@@ -36,15 +36,15 @@ export const router = createBrowserRouter([
                 element: <Settings />,
               },
               {
-                path: '/workspace/:id',
+                path: '/workspace/:workspace_id',
                 element: <Workspace />,
                 children: [
                   {
-                    path: '/workspace/:id/boards',
+                    path: '/workspace/:workspace_id/boards',
                     element: <Boards />,
                   },
                   {
-                    path: '/workspace/:id/users',
+                    path: '/workspace/:workspace_id/users',
                     element: <Users />,
                   },
                 ],

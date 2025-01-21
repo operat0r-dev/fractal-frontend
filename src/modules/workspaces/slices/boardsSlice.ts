@@ -23,11 +23,19 @@ const boardsSlice = createSlice({
     addReduxBoard: (state, action: PayloadAction<Board>) => {
       boardsAdapter.addOne(state, action.payload);
     },
+    updateBoard: (state, action: PayloadAction<Board>) => {
+      const { id, name, color } = action.payload;
+
+      boardsAdapter.updateOne(state, {
+        id,
+        changes: { name, color },
+      });
+    },
     resetBoards: () => initialState,
   },
 });
 
-export const { setReduxBoards, addReduxBoard, resetBoards } =
+export const { setReduxBoards, addReduxBoard, updateBoard, resetBoards } =
   boardsSlice.actions;
 
 export default boardsSlice.reducer;
