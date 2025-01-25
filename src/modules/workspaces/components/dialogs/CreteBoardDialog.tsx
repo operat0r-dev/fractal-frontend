@@ -41,11 +41,14 @@ import {
 import { useHandleError } from '../useError';
 import { Label } from '@/components/ui/label';
 import { predefinedColors } from '@/modules/board/constants/PredefinedColors';
+import { useToast } from '@/hooks/use-toast';
 
 const CreateBoardDialog = () => {
   const [open, setOpen] = useState<boolean>();
   const [loading, setLoading] = useState<boolean>(false);
+
   const { t } = useTranslation();
+  const { toast } = useToast();
   const workspace = useAppSelector(selectCurrentWorkspace);
   const workspaces = useAppSelector(selectAllWorkspaces);
   const dispatch = useAppDispatch();
@@ -86,6 +89,10 @@ const CreateBoardDialog = () => {
         dispatch(addReduxBoard(board));
         setLoading(false);
         setOpen(false);
+        toast({
+          variant: 'success',
+          description: t('boards.create.success'),
+        });
       })
       .catch((error) => {
         handleError<z.infer<typeof formSchema>>(error, {
@@ -107,17 +114,16 @@ const CreateBoardDialog = () => {
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="w-full h-[100px]"
           onClick={() => handleOpen()}
         >
-          {t('boards.create.board')}
+          {t('boards.create.title')}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('workspace.addMembers.title')}</DialogTitle>
+          <DialogTitle>{t('boards.create.title')}</DialogTitle>
           <DialogDescription>
-            {t('workspace.addMembers.description')}
+            {t('boards.create.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -154,12 +160,12 @@ const CreateBoardDialog = () => {
                         <SelectValue placeholder="Choose workspace" />
                       </SelectTrigger>
                       <SelectContent>
-                        {workspaces.map((workspace) => (
+                        {workspaces.map(({ id, name }) => (
                           <SelectItem
-                            key={workspace.id}
-                            value={String(workspace.id)}
+                            key={id}
+                            value={String(id)}
                           >
-                            {workspace.name}
+                            {name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -181,17 +187,17 @@ const CreateBoardDialog = () => {
                       defaultValue={field.value}
                       className="grid grid-cols-6 gap-2"
                     >
-                      {predefinedColors.map((color, index) => (
+                      {predefinedColors.map(({ hsl }, index) => (
                         <div key={index}>
                           <RadioGroupItem
-                            value={color.hsl}
+                            value={hsl}
                             id={`color-${index}`}
                             className="peer sr-only"
                           />
                           <Label
                             htmlFor={`color-${index}`}
                             className="flex h-4 w-4 rounded-md border-2 p-4 peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                            style={{ backgroundColor: color.hsl }}
+                            style={{ backgroundColor: hsl }}
                           />
                         </div>
                       ))}

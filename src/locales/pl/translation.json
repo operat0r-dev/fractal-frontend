@@ -73,8 +73,11 @@
     "boards": {
         "title": "Tablice",
         "create": {
-            "board": "Utwórz tablicę",
-            "column": "Utwórz kolumnę"
+            "column": "Utwórz kolumnę",
+            "title": "Utwórz tablicę",
+            "description": "Tutaj możesz utworzyć nową tablicę.",
+            "success": "Pomyślnie utworzono tablicę",
+            "error": "Podczas tworzenia tablicy wystąpił błąd"
         },
         "edit": {
             "title": "Edytuj tablicę",

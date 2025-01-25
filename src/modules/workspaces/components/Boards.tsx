@@ -24,31 +24,34 @@ const Boards = () => {
   }
 
   return (
-    <>
-      <h2 className="font-bold text-xl mb-4">{t('boards.title')}</h2>
-      <div className="grid grid-cols-4 justify-evenly gap-4">
-        {boards.map((board) => (
+    <div>
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="font-bold text-xl">{t('boards.title')}</h2>
+        <CreateBoardDialog />
+      </div>
+
+      <div className="grid grid-cols-4 gap-4">
+        {boards.map(({ id, name, color }) => (
           <div
-            key={board.id}
-            className="relative rounded-md font-bold w-full h-[100px] opacity-80 hover:opacity-100 transition-opacity duration-300 text-black"
-            style={{ backgroundColor: board.color }}
+            key={id}
+            className="relative rounded-md w-full h-[100px] opacity-80 hover:opacity-100 transition-opacity duration-300 text-black"
+            style={{ backgroundColor: color }}
           >
             <Link
-              to={`/workspace/${currentWorkspace?.id}/board/${board.id}`}
-              className="block p-4 w-full h-ful"
+              to={`/workspace/${currentWorkspace?.id}/board/${id}`}
+              className="block p-4 w-full h-full font-bold"
             >
-              {board.name}
+              {name}
             </Link>
             <EditBoardDialog
-              id={board.id}
-              name={board.name}
-              color={board.color}
+              id={id}
+              name={name}
+              color={color}
             />
           </div>
         ))}
-        <CreateBoardDialog />
       </div>
-    </>
+    </div>
   );
 };
 

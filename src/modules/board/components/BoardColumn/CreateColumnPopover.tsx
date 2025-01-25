@@ -26,12 +26,9 @@ import { useParams } from 'react-router-dom';
 import { useAppDispatch } from '@/store/hooks';
 import { addNewColumn } from '../../slices/columnsSlice';
 import { useHandleError } from '@/modules/workspaces/components/useError';
+import { SequenceIncrementor } from '../../constants/SequenceConstants';
 
-type props = {
-  newColumnSeq: number;
-};
-
-const CreateColumnPopover = ({ newColumnSeq }: props) => {
+const CreateColumnPopover = () => {
   const { t } = useTranslation();
   const { board_id } = useParams<string>();
   const [open, setOpen] = useState<boolean>(false);
@@ -68,7 +65,7 @@ const CreateColumnPopover = ({ newColumnSeq }: props) => {
   const { setError } = form;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    ColumnApi.store({ ...values, seq: newColumnSeq })
+    ColumnApi.store({ ...values, seq: lastSeq + SequenceIncrementor })
       .then((column) => {
         dispatch(addNewColumn(column));
         setOpen(false);
