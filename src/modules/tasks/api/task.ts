@@ -14,7 +14,7 @@ export interface UpdateTaskRequest {
   seq: number;
 }
 
-const storeTask = async (payload: CreateTaskRequest) => {
+const store = async (payload: CreateTaskRequest) => {
   const response: AxiosResponse<ApiResponse<TaskDto>> = await apiClient.post(
     '/task/store',
     payload
@@ -29,7 +29,7 @@ const storeTask = async (payload: CreateTaskRequest) => {
   return apiResponse.data;
 };
 
-const updateTask = async (id: number, payload: Partial<UpdateTaskRequest>) => {
+const update = async (id: number, payload: Partial<UpdateTaskRequest>) => {
   const response: AxiosResponse<ApiResponse<[]>> = await apiClient.put(
     `/task/update/${id}`,
     payload
@@ -78,7 +78,7 @@ const assignUser = async (id: number, payload: { user_id: number | null }) => {
 
 export default {
   getOne,
-  storeTask,
-  updateTask,
+  store,
+  update,
   assignUser,
 };

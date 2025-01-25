@@ -6,11 +6,11 @@ import AppLayout from './modules/core/AppLayout.tsx';
 import ProtectedRoutes from './utils/ProtectedRoutes.tsx';
 import Settings from './modules/settings/components/Settings.tsx';
 import Workspace from './modules/workspaces/Workspace.tsx';
-import Board from './modules/board/Board.tsx';
 import Labels from './modules/labels/Labels.tsx';
 import Boards from './modules/workspaces/components/Boards.tsx';
 import Users from './modules/workspaces/components/Users.tsx';
 import Task from './modules/tasks/components/Task.tsx';
+import KanbanBoard from './modules/board/KanbanBoard.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -25,7 +25,7 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: '/workspace/:workspace_id/board/:board_id',
-                element: <Board />,
+                element: <KanbanBoard />,
               },
               {
                 path: '/workspace/:workspace_id/board/:board_id/labels',

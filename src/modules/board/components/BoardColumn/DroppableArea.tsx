@@ -19,7 +19,10 @@ const getItemStyle = (draggableStyle: DraggableStyle | undefined) => ({
 
 const DroppableArea = ({ collapsed, columnId, taskIds }: props) => {
   return (
-    <Droppable droppableId={`${columnId}`}>
+    <Droppable
+      droppableId={`${columnId}`}
+      direction="vertical"
+    >
       {(provided, snapshot) => (
         <div
           ref={provided.innerRef}

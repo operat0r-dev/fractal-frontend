@@ -152,12 +152,22 @@
   .board-entry {
     &:hover {
       @apply border-muted-foreground;
-
-      .board-entry-edit-btn {
-        @apply flex;
-      }
     }
   }
+
+  .column-drag-handle {
+    .column-drag-handle__icon {
+      @apply transition-opacity opacity-0;
+    }
+
+    &:hover,
+    &:active {
+      .column-drag-handle__icon {
+        @apply opacity-100;
+      }
+    }
+
+  }  
 }
 
 @layer utilities {

@@ -16,7 +16,13 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import ColumnApi from '../../api/column';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronRight, EllipsisVertical, Files, Trash } from 'lucide-react';
+import {
+  ChevronRight,
+  EllipsisVertical,
+  Files,
+  Trash,
+  Move,
+} from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -25,12 +31,14 @@ import { Column } from '../../domain';
 import CreateTaskPopover from './CreateTaskPopover.';
 import { useAppDispatch } from '@/store/hooks';
 import { updateReduxColumn } from '../../slices/columnsSlice';
+import { DraggableProvided } from '@hello-pangea/dnd';
 
 type props = {
   collapsed: boolean;
   column: Column;
   taskIds: number[];
   onCollapsedChange: () => void;
+  provided: DraggableProvided;
 };
 
 const columnNameFormSchema = z.object({
@@ -42,6 +50,7 @@ const ControlPanel = ({
   column,
   onCollapsedChange,
   taskIds,
+  provided,
 }: props) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -71,115 +80,123 @@ const ControlPanel = ({
   };
 
   return (
-    <div
-      className={cn(
-        collapsed ? 'flex-col gap-4' : 'flex-row',
-        'p-2 gap-2 flex items-center justify-between border-t-4 rounded-t bg-background'
-      )}
-      style={{ borderTopColor: column.color }}
-    >
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={onCollapsedChange}
-        className="flex-shrink-0"
+    <div>
+      <div
+        {...provided.dragHandleProps}
+        className="column-drag-handle overflow-hidden relative h-2 w-full rounded-t hover:h-6 active:h-6 transition-all cursor-grab active:cursor-grabbing"
+        style={{ backgroundColor: column.color }}
       >
-        <ChevronRight
-          className={cn(collapsed && 'rotate-180', 'h-4 w-4 duration-200')}
-        />
-      </Button>
-      {collapsed ? (
-        <div className="flex flex-col items-center gap-2">
+        <Move className="column-drag-handle__icon absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 h-4 w-4 text-muted" />
+      </div>
+      <div
+        className={cn(
+          'p-2 gap-2 flex items-center justify-between',
+          collapsed ? 'flex-col gap-4' : 'flex-row'
+        )}
+      >
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onCollapsedChange}
+          className="flex-shrink-0"
+        >
+          <ChevronRight
+            className={cn(!collapsed && 'rotate-180', 'h-4 w-4 duration-200')}
+          />
+        </Button>
+        {collapsed ? (
+          <div className="flex flex-col items-center gap-2">
+            <div
+              className="text-center"
+              style={{ color: column.color }}
+            >
+              <Files className="h-4 w-4" />
+              <span className="font-medium text-sm">{taskIds.length}</span>
+            </div>
+            <p className="font-medium text-sm text-sideways">{column.name}</p>
+          </div>
+        ) : (
+          <Form {...columnNameForm}>
+            <form>
+              <FormField
+                control={columnNameForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        id="name"
+                        className="border-none font-medium"
+                        {...field}
+                        onBlur={columnNameForm.handleSubmit(
+                          onColumnNameFormSubmit
+                        )}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+        )}
+        <div className={cn(collapsed ? 'hidden' : 'flex gap-2 items-center')}>
           <div
-            className="text-center"
+            className="inline-flex items-center"
             style={{ color: column.color }}
           >
             <Files className="h-4 w-4" />
             <span className="font-medium text-sm">{taskIds.length}</span>
           </div>
-          <p className="font-medium text-sm text-sideways">{column.name}</p>
+          <CreateTaskPopover
+            column={column}
+            taskIds={taskIds}
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+              >
+                <EllipsisVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <span>{t('column.changeColor')}</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <RadioGroup
+                      onValueChange={handleColorChange}
+                      defaultValue={column.color}
+                      className="grid grid-cols-6 gap-2 p-4"
+                    >
+                      {predefinedColors.map((color, index) => (
+                        <div key={index}>
+                          <RadioGroupItem
+                            value={color.hsl}
+                            id={`color-${index}`}
+                            className="peer sr-only"
+                          />
+                          <Label
+                            htmlFor={`color-${index}`}
+                            className="flex h-4 w-4 rounded-md border-2 p-4 peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                            style={{ backgroundColor: color.hsl }}
+                          />
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+              <DropdownMenuItem>
+                <Trash className="h-4 w-4 mr-2" />
+                <span>{t('column.delete')}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      ) : (
-        <Form {...columnNameForm}>
-          <form>
-            <FormField
-              control={columnNameForm.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      id="name"
-                      className="border-none font-medium"
-                      {...field}
-                      onBlur={columnNameForm.handleSubmit(
-                        onColumnNameFormSubmit
-                      )}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </form>
-        </Form>
-      )}
-      <div className={cn(collapsed ? 'hidden' : 'flex gap-2 items-center')}>
-        <div
-          className="inline-flex items-center"
-          style={{ color: column.color }}
-        >
-          <Files className="h-4 w-4" />
-          <span className="font-medium text-sm">{taskIds.length}</span>
-        </div>
-        <CreateTaskPopover
-          column={column}
-          taskIds={taskIds}
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-            >
-              <EllipsisVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <span>{t('column.changeColor')}</span>
-              </DropdownMenuSubTrigger>
-              <DropdownMenuPortal>
-                <DropdownMenuSubContent>
-                  <RadioGroup
-                    onValueChange={handleColorChange}
-                    defaultValue={column.color}
-                    className="grid grid-cols-6 gap-2 p-4"
-                  >
-                    {predefinedColors.map((color, index) => (
-                      <div key={index}>
-                        <RadioGroupItem
-                          value={color.hsl}
-                          id={`color-${index}`}
-                          className="peer sr-only"
-                        />
-                        <Label
-                          htmlFor={`color-${index}`}
-                          className="flex h-4 w-4 rounded-md border-2 p-4 peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                          style={{ backgroundColor: color.hsl }}
-                        />
-                      </div>
-                    ))}
-                  </RadioGroup>
-                </DropdownMenuSubContent>
-              </DropdownMenuPortal>
-            </DropdownMenuSub>
-            <DropdownMenuItem>
-              <Trash className="h-4 w-4 mr-2" />
-              <span>{t('column.delete')}</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import {
 } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
 import { Column } from '../domain';
+import { createSelector } from '@reduxjs/toolkit';
 
 const columnsAdapter = createEntityAdapter<Column>({
   sortComparer: (a, b) => a.seq - b.seq,
@@ -19,13 +20,14 @@ const columnsSlice = createSlice({
   initialState,
   reducers: {
     updateReduxColumn: (state, action: PayloadAction<Column>) => {
-      const { id, color, name } = action.payload;
+      const { id, color, name, seq } = action.payload;
 
       const existingColumn = state.entities[id];
 
       if (existingColumn) {
         existingColumn.name = name;
         existingColumn.color = color;
+        existingColumn.seq = seq;
       }
     },
     updateColumnsTasks: (
@@ -77,3 +79,8 @@ export const {
   selectIds: selectColumnIds,
   selectById: selectColumnById,
 } = columnsAdapter.getSelectors((state: RootState) => state.columns);
+
+export const selectAllColumnsOrderedBySeq = createSelector(
+  [selectAllColumns],
+  (columns) => columns.sort((a, b) => a.seq - b.seq)
+);

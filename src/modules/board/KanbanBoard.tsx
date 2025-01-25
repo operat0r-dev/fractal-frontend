@@ -1,8 +1,15 @@
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { DragDropContext, DropResult } from '@hello-pangea/dnd';
+import {
+  DragDropContext,
+  DraggableStateSnapshot,
+  DropResult,
+  Droppable,
+  DroppableProvided,
+} from '@hello-pangea/dnd';
 import { Tag } from 'lucide-react';
+import ColumnApi from 'modules/board/api/column.ts';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
@@ -14,33 +21,28 @@ import BoardApi from './api/board.ts';
 import BoardColumn from './components/BoardColumn';
 import CreateColumnPopover from './components/BoardColumn/CreateColumnPopover';
 import EditTaskSidebar from './components/QuickEditTask';
-import { SequenceIncrementor } from './constants/SequenceConstants';
-import { setSidebarOpen } from './slices/kanbanBoardSlice.ts';
 import {
   resetColumns,
-  selectColumnById,
-  selectColumnIds,
+  selectAllColumnsOrderedBySeq,
   setReduxColumns,
   updateColumnsTasks,
+  updateReduxColumn,
 } from './slices/columnsSlice';
+import { setSidebarOpen } from './slices/kanbanBoardSlice.ts';
 import {
   resetTasks,
   selectAllTasksOrderedBySeq,
   setReduxTasks,
   taskUpdated,
 } from './slices/tasksSlice';
-import { move, reorder } from './utils/boardUtils';
+import { move, reorder, reorderColumn } from './utils/boardUtils';
 
-const Board = () => {
+const KanbanBoard = () => {
   const { workspace_id, board_id } = useParams();
   const { t } = useTranslation();
-  const reduxColumns = useAppSelector(selectColumnIds);
-  const reduxTasks = useAppSelector(selectAllTasksOrderedBySeq);
+  const columns = useAppSelector(selectAllColumnsOrderedBySeq);
+  const tasks = useAppSelector(selectAllTasksOrderedBySeq);
   const dispatch = useAppDispatch();
-  const lastSeq =
-    useAppSelector((state) =>
-      selectColumnById(state, reduxColumns[reduxColumns.length - 1])
-    )?.seq || 0;
   const [loading, setLoading] = useState(false);
   if (!board_id) return;
 
@@ -70,12 +72,17 @@ const Board = () => {
   }, [board_id]);
 
   const onDragEnd = async (result: DropResult) => {
-    const { source, destination } = result;
+    const { source, destination, type } = result;
 
     if (!destination) return;
 
     const sourceColumnId = +source.droppableId;
     const destinationColumnId = +destination.droppableId;
+
+    if (type === 'COLUMN') {
+      await handleColumnReorder(source.index, destination.index);
+      return;
+    }
 
     if (
       sourceColumnId === destinationColumnId &&
@@ -99,12 +106,7 @@ const Board = () => {
     sourceIndex: number,
     destinationIndex: number
   ) => {
-    const movedTask = reorder(
-      reduxTasks,
-      columnId,
-      sourceIndex,
-      destinationIndex
-    );
+    const movedTask = reorder(tasks, columnId, sourceIndex, destinationIndex);
 
     dispatch(
       updateColumnsTasks({
@@ -121,7 +123,19 @@ const Board = () => {
       })
     );
 
-    TaskApi.updateTask(movedTask.id, { seq: movedTask.seq });
+    TaskApi.update(movedTask.id, { seq: movedTask.seq });
+  };
+
+  const handleColumnReorder = async (
+    sourceIndex: number,
+    destinationIndex: number
+  ) => {
+    const movedColumn = reorderColumn(columns, sourceIndex, destinationIndex);
+
+    dispatch(updateReduxColumn({ ...movedColumn }));
+    console.log(movedColumn);
+
+    ColumnApi.update(movedColumn.id, { seq: movedColumn.seq });
   };
 
   const handleMove = async (
@@ -131,7 +145,7 @@ const Board = () => {
     destinationIndex: number
   ) => {
     const movedTask = move(
-      reduxTasks,
+      tasks,
       sourceId,
       destinationId,
       sourceIndex,
@@ -152,7 +166,7 @@ const Board = () => {
       })
     );
 
-    TaskApi.updateTask(movedTask.id, {
+    TaskApi.update(movedTask.id, {
       column_id: movedTask.column_id,
       seq: movedTask.seq,
     });
@@ -176,15 +190,31 @@ const Board = () => {
         <div className="flex flex-grow gap-4 w-full overflow-auto">
           <DragDropContext onDragEnd={onDragEnd}>
             <div className="flex h-full gap-4">
-              {reduxColumns.map((id) => (
-                <BoardColumn
-                  key={id}
-                  columnId={id}
-                />
-              ))}
+              <Droppable
+                droppableId="board"
+                type="COLUMN"
+                direction="horizontal"
+              >
+                {(provided) => (
+                  <div
+                    className="flex gap-4"
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
+                    {columns.map((column, index) => (
+                      <BoardColumn
+                        index={index}
+                        key={column.id}
+                        columnId={column.id}
+                      />
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
             </div>
           </DragDropContext>
-          <CreateColumnPopover newColumnSeq={lastSeq + SequenceIncrementor} />
+          <CreateColumnPopover />
         </div>
       ) : (
         <div className="flex flex-grow gap-4">
@@ -199,4 +229,4 @@ const Board = () => {
   );
 };
 
-export default Board;
+export default KanbanBoard;

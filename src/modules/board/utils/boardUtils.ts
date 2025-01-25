@@ -1,20 +1,21 @@
 import { Task } from '../domain';
 import { SequenceIncrementor } from '../constants/SequenceConstants';
+import { Column } from '../domain';
 
 export const calculateSequenceNumber = (
-  tasks: Task[],
+  items: Task[] | Column[],
   index: number
 ): number => {
-  if (index === 0 && tasks.length === 1) {
+  if (index === 0 && items.length === 1) {
     return SequenceIncrementor;
-  } else if (index === 0 && tasks.length > 1) {
-    return tasks[1].seq / 2;
-  } else if (index === tasks.length - 1) {
-    return tasks[tasks.length - 2].seq + SequenceIncrementor;
+  } else if (index === 0 && items.length > 1) {
+    return items[1].seq / 2;
+  } else if (index === items.length - 1) {
+    return items[items.length - 2].seq + SequenceIncrementor;
   } else {
-    const prevTaskSeq = tasks[index - 1].seq;
-    const nextTaskSeq = tasks[index + 1].seq;
-    return (prevTaskSeq + nextTaskSeq) / 2;
+    const prevItemSeq = items[index - 1].seq;
+    const nextItemSeq = items[index + 1].seq;
+    return (prevItemSeq + nextItemSeq) / 2;
   }
 };
 
@@ -32,6 +33,21 @@ export const reorder = (
   const seq = calculateSequenceNumber(sourceClone, destinationIndex);
 
   return { ...movedTask, seq };
+};
+
+export const reorderColumn = (
+  list: Column[],
+  sourceIndex: number,
+  destinationIndex: number
+) => {
+  const sourceClone = [...list];
+
+  const [movedColumn] = sourceClone.splice(sourceIndex, 1);
+  sourceClone.splice(destinationIndex, 0, movedColumn);
+
+  const seq = calculateSequenceNumber(sourceClone, destinationIndex);
+
+  return { ...movedColumn, seq };
 };
 
 export const move = (

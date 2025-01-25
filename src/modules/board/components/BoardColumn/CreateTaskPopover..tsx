@@ -50,7 +50,7 @@ const CreateTaskPopover = ({ column, taskIds }: props) => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    TaskApi.storeTask({
+    TaskApi.store({
       ...values,
       seq: taskIds.length
         ? lastTask.seq + SequenceIncrementor
